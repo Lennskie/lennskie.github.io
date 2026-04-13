@@ -87,7 +87,7 @@ body::before {
 
 .hero-name {
   font-family: Maratype, sans-serif;
-  font-size: clamp(2rem, 8vw, 5rem);
+  font-size: clamp(3.5rem, 12vw, 16rem);
   font-weight: 700;
   color: var(--neon);
   letter-spacing: 0.06em;
@@ -96,6 +96,7 @@ body::before {
   text-shadow: 0 0 60px rgba(207,252,0,0.45), 0 0 120px rgba(207,252,0,0.15);
   opacity: 0;
   animation: glitchIn 0.9s ease 0.7s forwards;
+  white-space: nowrap 
 }
 
 .hero-btn {
