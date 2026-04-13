@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>LENN // TERMINAL</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&family=Share+Tech+Mono&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="CSS/style.css" />
+  <link rel="stylesheet" href="CSS/mobile.css" />
+  <script src="JS/main.js"></script>
+  <style>
+  @font-face {
+    font-family: "Maratype";
+    src: url("fonts/Maratype.otf");
+  }
+  </style>
+</head>
+<body>
+
+  <!-- ═══ HERO — full viewport landing ═══ -->
+  <section id="hero">
+    <span class="hero-label">[ INITIALIZING NEURAL LINK... ]</span>
+    <h1 class="hero-name" id="hero-name">LENN CROCHART</h1>
+    <button class="hero-btn" id="start-btn" onclick="handleStart()">ENTER</button>
+    <div class="hero-meta">
+      <span>ONLINE: <em>1</em></span>
+      <span>ADMIN_ALIAS: <em>ENT0</em></span>
+      <span>STATUS: <em>ENCRYPTED</em></span>
+    </div>
+  </section>
+
+  <!-- ═══ TERMINAL — interactive command prompt ═══ -->
+  <section id="terminal-section">
+    <div class="terminal-wrap">
+      <div class="terminal-box">
+        <div class="terminal-titlebar">
+          <span class="dot r"></span><span class="dot y"></span><span class="dot g"></span>
+          <span class="t-label">SYSTEM_ROOT@LENN_TERMINAL_V2</span>
+        </div>
+        <div id="terminal-output"></div>
+        <div class="terminal-input-row">
+          <span class="t-prompt-sym">&gt;&gt;</span>
+          <input id="t-input" type="text" autocomplete="off" spellcheck="false" placeholder="type a command..." />
+        </div>
+      </div>
+      <div class="terminal-hints">
+        TRY:
+        <span class="hint" onclick="runCmd('whoami')">whoami</span> |
+        <span class="hint" onclick="runCmd('skills')">skills</span> |
+        <span class="hint" onclick="runCmd('status')">status</span> |
+        <span class="hint" onclick="runCmd('contact')">contact</span> |
+        <span class="hint" onclick="runCmd('clear')">clear</span> |
+        <span class="hint" onclick="runCmd('help')">help</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══ ABOUT + SKILLS — identity and competency grid ═══ -->
+  <section id="about-section">
+    <div class="about-grid">
+      <div class="about-left">
+        <span class="entity-tag">ENTITY_PROFILE [014]</span>
+        <h2 class="big-heading">PERSONAL<br>STATS</h2>
+        <p class="about-body">
+          Operating at the intersection of Microsoft infrastructure and operational precision.
+          Every policy applied is a calculated move; every tenant configured is a tactical advantage.
+        </p>
+        <div class="about-meta">
+          <div class="meta-item">
+            <span class="meta-label">DESIGNATION</span>
+            <span class="meta-value">M365 ENGINEER</span>
+          </div>
+          <div class="meta-item">
+            <span class="meta-label">SECTOR</span>
+            <span class="meta-value">ENTERPRISE IT</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="skills-panel">
+        <div class="sys-attr-label">[ SYSTEM_ATTRIBUTES ]</div>
+
+        <div class="skill-row"><div class="skill-header"><span>MICROSOFT ENTRA ID</span><span id="s1pct">0%</span></div><div class="skill-bar-bg"><div class="skill-bar-fill" data-val="95"></div></div></div>
+        <div class="skill-row"><div class="skill-header"><span>ACTIVE DIRECTORY</span><span id="s2pct">0%</span></div><div class="skill-bar-bg"><div class="skill-bar-fill" data-val="90"></div></div></div>
+        <div class="skill-row"><div class="skill-header"><span>OFFICE 365 / M365</span><span id="s3pct">0%</span></div><div class="skill-bar-bg"><div class="skill-bar-fill" data-val="92"></div></div></div>
+        <div class="skill-row"><div class="skill-header"><span>SHAREPOINT / ONEDRIVE</span><span id="s4pct">0%</span></div><div class="skill-bar-bg"><div class="skill-bar-fill" data-val="88"></div></div></div>
+        <div class="skill-row"><div class="skill-header"><span>AZURE / INTUNE</span><span id="s5pct">0%</span></div><div class="skill-bar-bg"><div class="skill-bar-fill" data-val="80"></div></div></div>
+        <div class="skill-row"><div class="skill-header"><span>POWERSHELL / VBA</span><span id="s6pct">0%</span></div><div class="skill-bar-bg"><div class="skill-bar-fill" data-val="85"></div></div></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══ HOBBIES — offline modules ═══ -->
+  <section id="hobbies-section">
+    <div class="section-header">
+      <h2 class="section-title">OFFLINE_MODULES</h2>
+      <span class="section-count">[ 03 ITEMS FOUND ]</span>
+    </div>
+    <div class="hobbies-grid">
+
+      <div class="hobby-card">
+        <div class="hobby-index">[ 01 ] MUSIC</div>
+        <div class="hobby-title">AUDIO_SECTOR</div>
+        <p class="hobby-desc">Signal processing for the human cortex. Deep cataloguing of sound across genres — from industrial cold wave to progressive metal. Live rigs, pedal chains, and DAW architectures.</p>
+        <div class="hobby-tags">
+          <span class="tag">GUITAR</span><span class="tag">SYNTH</span><span class="tag">METAL</span><span class="tag">DAW</span>
+        </div>
+      </div>
+
+      <div class="hobby-card">
+        <div class="hobby-index">[ 02 ] SPORTS</div>
+        <div class="hobby-title">BIOMECH_UNIT</div>
+        <p class="hobby-desc">Physical system maintenance and competitive protocols. Tracking performance metrics and pushing threshold outputs. The body as hardware — keep it calibrated.</p>
+        <div class="hobby-tags">
+          <span class="tag">CYCLING</span><span class="tag">RUNNING</span><span class="tag">FITNESS</span>
+        </div>
+      </div>
+
+      <div class="hobby-card">
+        <div class="hobby-index">[ 03 ] TECH &amp; GEAR</div>
+        <div class="hobby-title">DEEP_GEEK_MODE</div>
+        <p class="hobby-desc">Compulsive hardware research, homelab tinkering, and rabbit holes that go three layers deeper than necessary. If it has a spec sheet, it has been read.</p>
+        <div class="hobby-tags">
+          <span class="tag">HOMELAB</span><span class="tag">HARDWARE</span><span class="tag">RETRO</span><span class="tag">SCI-FI</span>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ═══ CONTACT — uplink form ═══ -->
+  <section id="contact-section">
+    <div class="contact-inner">
+      <h2 class="section-title">ESTABLISH_UPLINK</h2>
+      <div class="contact-sub">DIRECT LINE TO TERMINAL OPERATOR</div>
+
+      <label class="field-label">SENDER_ID</label>
+      <input type="text" class="t-field" placeholder="your name" />
+
+      <label class="field-label">INCOMING_ADDR</label>
+      <input type="email" class="t-field" placeholder="your@email.com" />
+
+      <label class="field-label">TRANSMISSION_CONTENT</label>
+      <textarea class="t-field t-textarea" placeholder="your message..."></textarea>
+
+      <button class="t-submit">[ TRANSMIT ] &rarr;</button>
+
+      <div class="contact-footer">
+        <a href="#" class="footer-link">* LINKEDIN</a>
+        <a href="#" class="footer-link">&#9679; GITHUB</a>
+        <a href="#" class="footer-link">&#9675; EMAIL</a>
+      </div>
+    </div>
+  </section>
+</body>
+</html>
