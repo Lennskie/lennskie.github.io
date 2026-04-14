@@ -247,6 +247,12 @@ async function runHeroIntro() {
   const labelText = label.textContent;
   const nameText = name.textContent;
 
+  // Preserve heights to prevent layout jumping while text is cleared
+  const labelH = label.offsetHeight;
+  const nameH = name.offsetHeight;
+  label.style.minHeight = labelH + 'px';
+  name.style.minHeight = nameH + 'px';
+
   label.textContent = "";
   name.textContent = "";
 
@@ -265,18 +271,51 @@ async function runHeroIntro() {
   triggerResolve();
   await scramblePromise;
 
-  // Reveal the start button
-  btn.style.opacity = '1';
-  btn.style.animation = 'fadeUp 0.6s ease forwards';
+  // Clear temporary heights
+  label.style.minHeight = '';
+  name.style.minHeight = '';
+
+  // 3. Reveal the start button in its un-looted state (-)
+  btn.textContent = "-";
+  btn.style.opacity = "1";
+  btn.classList.add('is-active');
+}
+
+// Logic for the square "loot box" button reveal
+async function animateLootButton(btn) {
+  // 1. Trigger the ripple animation
+  btn.classList.add('btn-rippling');
+  
+  // 2. Halfway through the 0.8s ripple, reveal the "obscured" text
+  await new Promise(r => setTimeout(r, 400));
+  btn.classList.add('text-obscured');
+  btn.textContent = "ENTER";
+
+  // 3. Complete the transition as the ripple spreads to the edges
+  await new Promise(r => setTimeout(r, 400));
+  btn.classList.remove('btn-rippling', 'text-obscured');
+  btn.classList.add('btn-looted');
 }
 
 window.addEventListener('DOMContentLoaded', runHeroIntro);
 
 // ── HERO START BUTTON ──
-function handleStart() {
+let isLooted = false;
+
+async function handleStart() {
   const btn = document.getElementById('start-btn');
+  
+  // First click: Perform the "looting" reveal from Marathon
+  if (!isLooted) {
+    isLooted = true;
+    await animateLootButton(btn);
+    return;
+  }
+
+  // Second click: Proceed to Terminal
+  btn.style.opacity = '0';
+  btn.style.pointerEvents = 'none';
   btn.style.animation = 'crtFlicker 0.05s 3';
-  btn.disabled = true;
 
   setTimeout(() => {
     output.innerHTML = '';

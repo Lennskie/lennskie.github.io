@@ -26,7 +26,7 @@
 
 /* ── RESET & BASE ── */
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-html { scroll-behavior: smooth; }
+html { scroll-behavior: smooth; scrollbar-gutter: stable; }
 body {
   background: var(--void);
   color: var(--text);
@@ -100,28 +100,88 @@ body::before {
 
 .hero-btn {
   margin-top: 2.5rem;
-  padding: 0.9rem 3.5rem;
-  background: transparent;
-  border: 2px solid var(--neon);
-  color: var(--neon);
+  padding: 1.1rem 4.5rem;
+  min-width: 195px;
+  min-height: 54px;
+  background: #2a2a2a;
+  border: 1px solid #444;
+  color: #eee;
   font-family: var(--mono);
-  font-size: 15px;
+  font-size: 16px;
   font-weight: 700;
   letter-spacing: 0.35em;
   text-transform: uppercase;
   cursor: pointer;
+  
+  /* Layout stability: always takes up space */
   opacity: 0;
-  transition: background 0.15s, box-shadow 0.15s;
+  visibility: visible;
+  pointer-events: none;
+  
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.1s, opacity 0.3s, transform 0.1s;
   position: relative;
+  overflow: hidden;
   z-index: 1;
 }
 
-.hero-btn:hover {
-  background: rgba(207,252,0,0.08);
-  box-shadow: 0 0 20px rgba(207,252,0,0.2);
+.hero-btn.is-active {
+  pointer-events: auto;
 }
 
-.hero-btn:active { opacity: 0.7; }
+.hero-btn:hover {
+  background: #333;
+}
+
+/* Yellow state after unboxing */
+.hero-btn.btn-looted {
+  background: var(--neon);
+  color: var(--void);
+  border: 1px solid var(--neon);
+}
+
+.hero-btn.btn-looted:hover {
+  background: var(--neon-dim);
+}
+
+.hero-btn:active {
+  background: #fff !important;
+  transform: scale(0.98);
+}
+
+/* Marathon Ripple Checker */
+.hero-btn::before {
+  content: "";
+  position: absolute;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background-image: 
+    linear-gradient(45deg, var(--neon) 25%, transparent 25%), 
+    linear-gradient(-45deg, var(--neon) 25%, transparent 25%), 
+    linear-gradient(45deg, transparent 75%, var(--neon) 75%), 
+    linear-gradient(-45deg, transparent 75%, var(--neon) 75%);
+  background-size: 20px 20px;
+  background-position: 0 0, 0 10px, 10px -10px, -10px 0px;
+  clip-path: circle(0% at 50% 50%);
+  z-index: 2;
+  pointer-events: none;
+}
+
+.btn-rippling::before {
+  animation: rippleSpread 0.8s ease-out forwards;
+}
+
+@keyframes rippleSpread {
+  0% { clip-path: circle(0% at 50% 50%); }
+  100% { clip-path: circle(120% at 50% 50%); }
+}
+
+/* Text state during ripple */
+.text-obscured {
+  opacity: 0.4;
+  filter: blur(1px);
+}
 
 .hero-meta {
   position: absolute;
