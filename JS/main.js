@@ -11,9 +11,10 @@ let isTyping = false;
 
 // Typing speed configuration (ms per character)
 const SPEEDS = {
-  slow: 8,
-  med: 5,
-  fast: 2
+  slow: 15,
+  med: 8,
+  fast: 4,
+  turbo: 2
 };
 
 // ── COMMAND DEFINITIONS ──
@@ -24,13 +25,15 @@ const COMMANDS = {
     '  <span class="t-bright">skills</span>    — list loaded skill modules',
     '  <span class="t-bright">status</span>    — current operational status',
     '  <span class="t-bright">contact</span>   — uplink parameters',
+    '  <span class="t-bright">ls</span>        — list directory contents',
+    '  <span class="t-bright">cat</span>       — read file contents',
     '  <span class="t-bright">clear</span>     — flush terminal buffer',
   ],
 
   whoami: () => [
-    '<span class="t-muted">I am LENN. Microsoft 365 engineer and enterprise infrastructure operator.</span>',
+    '<span class="t-muted">I am Lenn, Cyber Security graduate and IT Support.</span>',
     '<span class="t-muted">My methodology prioritizes tenant security, identity governance, and automation.</span>',
-    '<span class="t-warn">Primary stack: Entra ID // Active Directory // M365 // SharePoint // Intune</span>',
+    '<span class="t-bright">To see my skills, type: </span>skills',
   ],
 
   skills: () => [
@@ -58,12 +61,24 @@ const COMMANDS = {
     '<span class="t-muted">Uplink parameters:</span>',
     '  <span class="t-bright">LINKEDIN</span>  linkedin.com/in/lenn-crochart',
     '  <span class="t-bright">GITHUB</span>    github.com/lennskie',
-    '  <span class="t-bright">EMAIL</span>     lenn.crochart@gmail.com',
+    '  <span class="t-bright">EMAIL</span>     lenn.crochart+fromwebsite@gmail.com',
   ],
 
   generator: () => {
     document.location.href = '/generator'
   },
+
+  ls: () => [
+    '<span class="t-bright">contact</span> &nbsp;&nbsp;&nbsp;&nbsp; <span class="t-bright">skills</span> &nbsp;&nbsp;&nbsp;&nbsp; <span class="t-bright">status</span> &nbsp;&nbsp;&nbsp;&nbsp; <span class="t-bright">whoami</span>',
+  ],
+
+  dir: () => COMMANDS.ls(),
+
+  'cat contact': () => COMMANDS.contact(),
+  'cat skills': () => COMMANDS.skills(),
+  'cat status': () => COMMANDS.status(),
+  'cat whoami': () => COMMANDS.whoami(),
+  'cat': () => ['<span class="t-err">cat: missing file operand</span>'],
 
   clear: () => { output.innerHTML = ''; return null; },
 
@@ -104,29 +119,11 @@ async function typeLine(html, speed, container = null) {
   const originalTexts = textNodes.map(node => node.textContent);
   textNodes.forEach(node => node.textContent = '');
 
-  let lastTime = performance.now();
-  let timeAccumulator = 0;
-
   for (let i = 0; i < textNodes.length; i++) {
-    let charIndex = 0;
-    while (charIndex < originalTexts[i].length) {
-      await new Promise(requestAnimationFrame);
-      
-      const currentTime = performance.now();
-      const dt = Math.min(currentTime - lastTime, 50); // cap max jump to 50ms
-      lastTime = currentTime;
-      
-      timeAccumulator += dt;
-      const charsToType = Math.floor(timeAccumulator / speed);
-      
-      if (charsToType > 0) {
-        const actualChars = Math.min(charsToType, originalTexts[i].length - charIndex);
-        textNodes[i].textContent += originalTexts[i].substring(charIndex, charIndex + actualChars);
-        charIndex += actualChars;
-        timeAccumulator -= (actualChars * speed);
-        
-        if (!isCustom) output.scrollTop = output.scrollHeight;
-      }
+    for (const char of originalTexts[i]) {
+      textNodes[i].textContent += char;
+      if (!isCustom) output.scrollTop = output.scrollHeight;
+      await new Promise(r => setTimeout(r, speed));
     }
   }
 }
@@ -186,40 +183,21 @@ function scrambleText(el, final, duration, settleTrigger = null) {
   });
 }
 
-// Orchestrates typing multiple lines based on the command typed
-async function typeAllLines(lines, cmd = '') {
+// Orchestrates typing multiple lines with adaptive speed
+async function typeAllLines(lines) {
   if (!lines || lines.length === 0) return;
 
   isTyping = true;
   input.disabled = true;
 
-  let speed;
+  // Calculate speed based on total character length
+  const totalText = lines.join('').replace(/<[^>]*>/g, '');
+  const len = totalText.length;
+  let speed = SPEEDS.med;
 
-  switch (cmd) {
-    case 'boot':
-      speed = SPEEDS.slow;
-      break;
-    case 'skills':
-      speed = SPEEDS.fast;
-      break;
-    case 'help':
-      speed = SPEEDS.med;
-      break;
-    case 'contact':
-      speed = SPEEDS.slow;
-      break;
-    case 'status':
-      speed = SPEEDS.med;
-      break;
-    case 'whoami':
-      speed = SPEEDS.fast;
-      break;
-    case 'error':
-      speed = SPEEDS.slow;
-      break;
-    default:
-      speed = SPEEDS.fast;
-  }
+  if (len < 50) speed = SPEEDS.turbo;
+  else if (len > 75) speed = SPEEDS.turbo;
+  else if (len > 100) speed = SPEEDS.turbo;
 
   for (const line of lines) {
     await typeLine(line, speed);
@@ -232,22 +210,26 @@ async function typeAllLines(lines, cmd = '') {
 
 // Boot sequence — called on start or via 'sudo boot' command
 function runBoot(autoType) {
-  const lines = [
+  const initLines = [
     '<span class="t-bright">[ OK ]</span> <span class="t-muted">Verifying integrity checksums...</span>',
     '<span class="t-bright">[ OK ]</span> <span class="t-muted">Loading the terminal...</span>',
     '<span class="t-bright">[ OK ]</span> <span class="t-muted">Preparing to run whoami ...</span>',
-    '<span class="t-warn">&gt;&gt; whoami</span>',
-    '<span class="t-muted">I am Lenn Crochart. IT Support engineer.</span>',
-    '<span class="t-muted">Type <span style="color:var(--neon)">help</span> for available commands.</span>',
   ];
 
   if (autoType) {
     // Coordinated typing sequence for the boot animation
-    typeAllLines(lines, 'boot');
+    (async () => {
+      await typeAllLines(initLines);
+      await runCmd('whoami');
+    })();
     return null;
   }
 
-  return lines;
+  return [
+    ...initLines,
+    '<span class="t-prompt-color">&gt;&gt;</span> whoami',
+    ...COMMANDS.whoami()
+  ];
 }
 
 // Public helper used by hint spans in the HTML
@@ -257,7 +239,7 @@ async function runCmd(cmd) {
   const fn = COMMANDS[cmd];
   if (fn) {
     const result = fn();
-    if (result) await typeAllLines(result, cmd);
+    if (result) await typeAllLines(result);
   }
   input.focus();
 }
@@ -265,20 +247,28 @@ async function runCmd(cmd) {
 // Keyboard input handler
 input.addEventListener('keydown', async function (e) {
   if (e.key !== 'Enter' || isTyping) return;
-  const cmd = input.value.trim().toLowerCase();
+  const cmd = input.value.trim().toLowerCase().replace(/\s+/g, ' ');
   if (!cmd) return;
 
-  appendLine('<span class="t-prompt-color">&gt;&gt;</span> ' + cmd);
+  const rawCmd = input.value.trim().toLowerCase(); // keep exact spacing for display if desired, but better to just use raw input or space normalized
+  appendLine('<span class="t-prompt-color">&gt;&gt;</span> ' + input.value.trim()); // display exactly what was typed, without leading/trailing edge spaces
   input.value = '';
 
   if (cmd === 'clear') { output.innerHTML = ''; return; }
 
-  const fn = COMMANDS[cmd];
+  let fn = COMMANDS[cmd];
+  
+  // Support for "cat <invalid_file>"
+  if (!fn && cmd.startsWith('cat ')) {
+    const filename = cmd.substring(4);
+    fn = () => ['<span class="t-err">cat: ' + filename + ': No such file or directory</span>'];
+  }
+
   if (fn) {
     const result = fn();
-    if (result) await typeAllLines(result, cmd);
+    if (result) await typeAllLines(result);
   } else {
-    await typeAllLines(['<span class="t-err">command not found: ' + cmd + ' — try <span style="color:var(--neon)">help</span></span>'], 'error');
+    await typeAllLines(['<span class="t-err">command not found: ' + cmd + ' — try <span style="color:var(--neon)">help</span></span>']);
   }
 });
 
