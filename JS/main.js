@@ -11,10 +11,9 @@ let isTyping = false;
 
 // Typing speed configuration (ms per character)
 const SPEEDS = {
-  slow: 15,
-  med: 8,
-  fast: 4,
-  turbo: 2
+  slow: 8,
+  med: 5,
+  fast: 2,
 };
 
 // ── COMMAND DEFINITIONS ──
@@ -81,8 +80,6 @@ const COMMANDS = {
   'cat': () => ['<span class="t-err">cat: missing file operand</span>'],
 
   clear: () => { output.innerHTML = ''; return null; },
-
-  'sudo boot': () => runBoot(false),
 };
 
 // ── TERMINAL OUTPUT ──
@@ -183,21 +180,44 @@ function scrambleText(el, final, duration, settleTrigger = null) {
   });
 }
 
-// Orchestrates typing multiple lines with adaptive speed
-async function typeAllLines(lines) {
+// Orchestrates typing multiple lines based on the command typed
+async function typeAllLines(lines, cmd = '') {
   if (!lines || lines.length === 0) return;
 
   isTyping = true;
   input.disabled = true;
 
-  // Calculate speed based on total character length
-  const totalText = lines.join('').replace(/<[^>]*>/g, '');
-  const len = totalText.length;
-  let speed = SPEEDS.med;
+  let speed;
 
-  if (len < 50) speed = SPEEDS.turbo;
-  else if (len > 75) speed = SPEEDS.turbo;
-  else if (len > 100) speed = SPEEDS.turbo;
+  switch (cmd) {
+    case 'boot':
+      speed = SPEEDS.slow;
+      break;
+    case 'skills':
+      speed = SPEEDS.fast;
+      break;
+    case 'help':
+      speed = SPEEDS.med;
+      break;
+    case 'contact':
+      speed = SPEEDS.slow;
+      break;
+    case 'status':
+      speed = SPEEDS.med;
+      break;
+    case 'whoami':
+      speed = SPEEDS.fast;
+      break;
+    case 'error':
+      speed = SPEEDS.slow;
+      break;
+    case 'ls':
+      speed = SPEEDS.fast
+    case 'cat':
+      speed = SPEEDS.fast
+    default:
+      speed = SPEEDS.fast;
+  }
 
   for (const line of lines) {
     await typeLine(line, speed);
@@ -219,7 +239,7 @@ function runBoot(autoType) {
   if (autoType) {
     // Coordinated typing sequence for the boot animation
     (async () => {
-      await typeAllLines(initLines);
+      await typeAllLines(initLines, 'boot');
       await runCmd('whoami');
     })();
     return null;
@@ -239,7 +259,7 @@ async function runCmd(cmd) {
   const fn = COMMANDS[cmd];
   if (fn) {
     const result = fn();
-    if (result) await typeAllLines(result);
+    if (result) await typeAllLines(result, cmd);
   }
   input.focus();
 }
@@ -266,9 +286,9 @@ input.addEventListener('keydown', async function (e) {
 
   if (fn) {
     const result = fn();
-    if (result) await typeAllLines(result);
+    if (result) await typeAllLines(result, cmd);
   } else {
-    await typeAllLines(['<span class="t-err">command not found: ' + cmd + ' — try <span style="color:var(--neon)">help</span></span>']);
+    await typeAllLines(['<span class="t-err">command not found: ' + cmd + ' — try <span style="color:var(--neon)">help</span></span>'], 'error');
   }
 });
 
