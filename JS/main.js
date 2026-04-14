@@ -5,7 +5,7 @@
 ═══════════════════════════════════════════════ */
 
 const output = document.getElementById('terminal-output');
-const input  = document.getElementById('t-input');
+const input = document.getElementById('t-input');
 
 // ── COMMAND DEFINITIONS ──
 const COMMANDS = {
@@ -67,12 +67,11 @@ function appendLine(html) {
 // Boot sequence — called on start or via 'sudo boot' command
 function runBoot(autoType) {
   const lines = [
-    '<span class="t-muted">&gt;&gt; sudo system_boot --force</span>',
     '<span class="t-bright">[ OK ]</span> <span class="t-muted">Verifying integrity checksums...</span>',
-    '<span class="t-bright">[ OK ]</span> <span class="t-muted">Loading core visual modules...</span>',
-    '<span class="t-bright">[ OK ]</span> <span class="t-muted">Calibrating human-machine interface...</span>',
+    '<span class="t-bright">[ OK ]</span> <span class="t-muted">Loading the terminal...</span>',
+    '<span class="t-bright">[ OK ]</span> <span class="t-muted">Preparing to run whoami ...</span>',
     '<span class="t-warn">&gt;&gt; whoami</span>',
-    '<span class="t-muted">I am LENN. M365 engineer & enterprise infrastructure operator.</span>',
+    '<span class="t-muted">I am Lenn Crochart. IT Support engineer.</span>',
     '<span class="t-muted">Type <span style="color:var(--neon)">help</span> for available commands.</span>',
   ];
 
@@ -131,8 +130,8 @@ function handleStart() {
 
 // ── SKILL BAR SCROLL ANIMATION ──
 // Bars animate in once the about section enters the viewport
-const skillBars    = document.querySelectorAll('.skill-bar-fill');
-const skillPctEls  = [
+const skillBars = document.querySelectorAll('.skill-bar-fill');
+const skillPctEls = [
   document.getElementById('s1pct'),
   document.getElementById('s2pct'),
   document.getElementById('s3pct'),
