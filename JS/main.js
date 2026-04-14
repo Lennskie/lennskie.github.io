@@ -11,10 +11,9 @@ let isTyping = false;
 
 // Typing speed configuration (ms per character)
 const SPEEDS = {
-  slow: 15,
-  med: 8,
-  fast: 4,
-  turbo: 2
+  slow: 8,
+  med: 5,
+  fast: 2
 };
 
 // ── COMMAND DEFINITIONS ──
@@ -26,7 +25,6 @@ const COMMANDS = {
     '  <span class="t-bright">status</span>    — current operational status',
     '  <span class="t-bright">contact</span>   — uplink parameters',
     '  <span class="t-bright">clear</span>     — flush terminal buffer',
-    '  <span class="t-bright">sudo boot</span> — run full boot sequence',
   ],
 
   whoami: () => [
@@ -106,11 +104,29 @@ async function typeLine(html, speed, container = null) {
   const originalTexts = textNodes.map(node => node.textContent);
   textNodes.forEach(node => node.textContent = '');
 
+  let lastTime = performance.now();
+  let timeAccumulator = 0;
+
   for (let i = 0; i < textNodes.length; i++) {
-    for (const char of originalTexts[i]) {
-      textNodes[i].textContent += char;
-      if (!isCustom) output.scrollTop = output.scrollHeight;
-      await new Promise(r => setTimeout(r, speed));
+    let charIndex = 0;
+    while (charIndex < originalTexts[i].length) {
+      await new Promise(requestAnimationFrame);
+      
+      const currentTime = performance.now();
+      const dt = Math.min(currentTime - lastTime, 50); // cap max jump to 50ms
+      lastTime = currentTime;
+      
+      timeAccumulator += dt;
+      const charsToType = Math.floor(timeAccumulator / speed);
+      
+      if (charsToType > 0) {
+        const actualChars = Math.min(charsToType, originalTexts[i].length - charIndex);
+        textNodes[i].textContent += originalTexts[i].substring(charIndex, charIndex + actualChars);
+        charIndex += actualChars;
+        timeAccumulator -= (actualChars * speed);
+        
+        if (!isCustom) output.scrollTop = output.scrollHeight;
+      }
     }
   }
 }
@@ -170,21 +186,40 @@ function scrambleText(el, final, duration, settleTrigger = null) {
   });
 }
 
-// Orchestrates typing multiple lines with adaptive speed
-async function typeAllLines(lines) {
+// Orchestrates typing multiple lines based on the command typed
+async function typeAllLines(lines, cmd = '') {
   if (!lines || lines.length === 0) return;
 
   isTyping = true;
   input.disabled = true;
 
-  // Calculate speed based on total character length
-  const totalText = lines.join('').replace(/<[^>]*>/g, '');
-  const len = totalText.length;
-  let speed = SPEEDS.med;
+  let speed;
 
-  if (len < 50) speed = SPEEDS.slow;
-  else if (len > 300) speed = SPEEDS.turbo;
-  else if (len > 150) speed = SPEEDS.fast;
+  switch (cmd) {
+    case 'boot':
+      speed = SPEEDS.slow;
+      break;
+    case 'skills':
+      speed = SPEEDS.fast;
+      break;
+    case 'help':
+      speed = SPEEDS.med;
+      break;
+    case 'contact':
+      speed = SPEEDS.slow;
+      break;
+    case 'status':
+      speed = SPEEDS.med;
+      break;
+    case 'whoami':
+      speed = SPEEDS.fast;
+      break;
+    case 'error':
+      speed = SPEEDS.slow;
+      break;
+    default:
+      speed = SPEEDS.fast;
+  }
 
   for (const line of lines) {
     await typeLine(line, speed);
@@ -208,7 +243,7 @@ function runBoot(autoType) {
 
   if (autoType) {
     // Coordinated typing sequence for the boot animation
-    typeAllLines(lines);
+    typeAllLines(lines, 'boot');
     return null;
   }
 
@@ -222,7 +257,7 @@ async function runCmd(cmd) {
   const fn = COMMANDS[cmd];
   if (fn) {
     const result = fn();
-    if (result) await typeAllLines(result);
+    if (result) await typeAllLines(result, cmd);
   }
   input.focus();
 }
@@ -241,9 +276,9 @@ input.addEventListener('keydown', async function (e) {
   const fn = COMMANDS[cmd];
   if (fn) {
     const result = fn();
-    if (result) await typeAllLines(result);
+    if (result) await typeAllLines(result, cmd);
   } else {
-    await typeAllLines(['<span class="t-err">command not found: ' + cmd + ' — try <span style="color:var(--neon)">help</span></span>']);
+    await typeAllLines(['<span class="t-err">command not found: ' + cmd + ' — try <span style="color:var(--neon)">help</span></span>'], 'error');
   }
 });
 
