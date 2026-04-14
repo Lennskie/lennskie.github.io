@@ -470,7 +470,7 @@ body::before {
 ════════════════════════════════════════ */
 #contact-section {
   background: var(--s1);
-  padding: 6rem 0;
+  padding: 4rem 0;
   border-top: 1px solid var(--s2);
 }
 
@@ -480,69 +480,11 @@ body::before {
   padding: 0 2rem;
 }
 
-.contact-sub {
-  font-family: var(--mono);
-  font-size: 11px;
-  color: var(--muted);
-  letter-spacing: 0.18em;
-  margin: 0.5rem 0 3rem;
-}
-
-.field-label {
-  display: block;
-  font-family: var(--mono);
-  font-size: 10px;
-  color: var(--muted);
-  letter-spacing: 0.15em;
-  text-transform: uppercase;
-  margin-bottom: 6px;
-}
-
-.t-field {
-  width: 100%;
-  background: transparent;
-  border: none;
-  border-bottom: 1px solid var(--s4);
-  color: var(--text);
-  font-family: var(--mono);
-  font-size: 13px;
-  padding: 8px 0;
-  margin-bottom: 2rem;
-  outline: none;
-  transition: border-color 0.2s;
-}
-
-.t-field:focus { border-bottom-color: var(--neon); }
-.t-field::placeholder { color: var(--muted); }
-
-.t-textarea {
-  resize: none;
-  height: 90px;
-}
-
-.t-submit {
-  width: 100%;
-  background: var(--neon);
-  border: none;
-  color: var(--void);
-  font-family: var(--mono);
-  font-size: 13px;
-  font-weight: 700;
-  letter-spacing: 0.22em;
-  padding: 1rem;
-  cursor: pointer;
-  transition: opacity 0.15s;
-}
-
-.t-submit:hover { opacity: 0.85; }
 
 .contact-footer {
   display: flex;
   justify-content: center;
   gap: 2.5rem;
-  margin-top: 3rem;
-  padding-top: 2rem;
-  border-top: 1px solid var(--s3);
 }
 
 .footer-link {
