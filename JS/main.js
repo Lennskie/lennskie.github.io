@@ -109,30 +109,50 @@ async function typeLine(html, speed, container = null) {
 }
 
 // Scramble effect for high-impact labels
-function scrambleText(el, final, duration) {
+function scrambleText(el, final, duration, settleTrigger = null) {
   return new Promise((resolve) => {
-    el.style.opacity = '1';
+    el.style.opacity = '0';
     const chars = "!@#$%^&*()_+{}:\"<>?|;',./`~[]=-";
+    // Shades of grey and neon for the "noise" effect
+    const colors = ["#666665", "#cffc00", "#a8d400", "#f4ffc8", "#121212"];
     const length = final.length;
     let frame = 0;
     const intervalTime = 40;
     const totalFrames = duration / intervalTime;
 
+    let isSettling = !settleTrigger;
+    if (settleTrigger) {
+      settleTrigger.then(() => isSettling = true);
+    }
+
     const interval = setInterval(() => {
-      let current = "";
+      let currentHTML = "";
+      const progress = isSettling ? (frame / totalFrames) : 0;
+
+      // Gradually increase overall opacity even during the noise phase
+      const currentOp = parseFloat(el.style.opacity) || 0;
+      if (currentOp < 1) {
+        el.style.opacity = (currentOp + (isSettling ? 0.05 : 0.02)).toFixed(2);
+      }
+
       for (let i = 0; i < length; i++) {
-        if (Math.random() < frame / totalFrames) {
-          current += final[i];
+        // Only settle characters if we are in the "settling" phase
+        if (isSettling && Math.random() < progress) {
+          currentHTML += final[i];
         } else {
-          current += chars[Math.floor(Math.random() * chars.length)];
+          const char = chars[Math.floor(Math.random() * chars.length)];
+          const color = colors[Math.floor(Math.random() * colors.length)];
+          currentHTML += `<span style="color:${color}; opacity: 0.7">${char}</span>`;
         }
       }
-      el.textContent = current;
-      frame++;
+      
+      el.innerHTML = currentHTML;
+      if (isSettling) frame++;
 
       if (frame > totalFrames) {
         clearInterval(interval);
-        el.textContent = final;
+        el.innerHTML = final;
+        el.style.opacity = '1';
         resolve();
       }
     }, intervalTime);
@@ -230,13 +250,22 @@ async function runHeroIntro() {
   label.textContent = "";
   name.textContent = "";
 
-  // 1. Type the neural link label
+  // Trigger setup for staggered resolution
+  let triggerResolve;
+  const settleTrigger = new Promise(resolve => triggerResolve = resolve);
+
+  // Start both in parallel: 
+  // 1. Label starts typing
+  // 2. Name starts noise/fade-in but DOES NOT settle until settleTrigger resolves
+  const scramblePromise = scrambleText(name, nameText, 1500, settleTrigger);
+  
   await typeLine(labelText, 30, label);
   
-  // 2. Scramble the name in
-  await scrambleText(name, nameText, 1200);
+  // Label is done! Signal the name to start settling
+  triggerResolve();
+  await scramblePromise;
 
-  // 3. Reveal the start button
+  // Reveal the start button
   btn.style.opacity = '1';
   btn.style.animation = 'fadeUp 0.6s ease forwards';
 }
