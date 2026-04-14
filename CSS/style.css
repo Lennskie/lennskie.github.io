@@ -152,35 +152,21 @@ body::before {
 }
 
 /* Marathon Ripple Checker */
-.hero-btn::before {
-  content: "";
+/* Square-fill Grid Overlay */
+.button-fill-grid {
   position: absolute;
   top: 0; left: 0; right: 0; bottom: 0;
-  background-image: 
-    linear-gradient(45deg, #a8ab98 25%, transparent 25%), 
-    linear-gradient(-45deg, #a8ab98 25%, transparent 25%), 
-    linear-gradient(45deg, transparent 75%, #a8ab98 75%), 
-    linear-gradient(-45deg, transparent 75%, #a8ab98 75%);
-  background-size: 32px 32px;
-  background-position: 0 0, 0 16px, 16px -16px, -16px 0px;
-  clip-path: circle(0% at 50% 50%);
+  display: grid;
+  grid-template-columns: repeat(8, 1fr);
+  grid-template-rows: repeat(2, 1fr);
   z-index: 2;
   pointer-events: none;
 }
 
-.btn-rippling::before {
-  animation: rippleSpread 0.8s ease-out forwards;
-}
-
-@keyframes rippleSpread {
-  0% { clip-path: circle(0% at 50% 50%); }
-  100% { clip-path: circle(120% at 50% 50%); }
-}
-
-/* Text state during ripple */
-.text-obscured {
-  opacity: 0.4;
-  filter: blur(1px);
+.button-fill-grid div {
+  background: #a8ab98;
+  opacity: 1;
+  transition: opacity 0.3s;
 }
 
 .hero-meta {

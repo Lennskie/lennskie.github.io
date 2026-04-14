@@ -315,31 +315,54 @@ async function animateLootButton(btn) {
 
   await new Promise(r => setTimeout(r, 200));
 
-  // 3. Dual-Slot Hot: Yellow with + + [0.3s]
+  // 3. Grid-Dissolve Phase: Cover the target state and reveal it randomly
+  // Prep the target look beneath the grid
   btn.style.background = "var(--neon)";
-  
-  await new Promise(r => setTimeout(r, 300));
-
-  // 4. Action State: Trigger the ripple animation
-  btn.classList.add('btn-rippling');
-  
-  // 5. Reveal "obscured" ENTER halfway through ripple
-  await new Promise(r => setTimeout(r, 400));
-  btn.classList.add('text-obscured');
-  btn.style.fontSize = "18px"; 
+  btn.style.color = "var(--void)";
+  btn.style.fontSize = "18px";
   btn.style.fontWeight = "700";
   btn.style.fontFamily = "var(--mono)";
   btn.style.gap = "0";
-  btn.style.color = "var(--void)";
-  btn.textContent = "ENTER";
+  btn.innerHTML = "ENTER";
 
-  // 6. Final State: Resolve to yellow looted box
-  await new Promise(r => setTimeout(r, 400));
-  btn.classList.remove('btn-rippling', 'text-obscured');
-  btn.style.background = ""; // Reset for CSS classes
-  btn.style.color = "";
-  btn.style.fontSize = "";
-  btn.style.letterSpacing = "";
+  const overlay = document.createElement('div');
+  overlay.className = 'button-fill-grid';
+  
+  const revealTargets = [];
+  const rows = 2;
+  const cols = 8;
+
+  for (let r = 0; r < rows; r++) {
+    for (let c = 0; c < cols; c++) {
+      const s = document.createElement('div');
+      overlay.appendChild(s);
+      
+      // Start with a checkerboard pattern
+      if ((r + c) % 2 !== 0) {
+        s.style.opacity = '0'; // Already revealed (yellow)
+      } else {
+        s.style.opacity = '1'; // Covering the content (lavender)
+        revealTargets.push(s);
+      }
+    }
+  }
+  btn.appendChild(overlay);
+
+  // Pause on the checkerboard pattern before resolving
+  await new Promise(r => setTimeout(r, 300));
+
+  // Randomly dissolve the remaining opaque squares
+  revealTargets.sort(() => Math.random() - 0.5);
+
+  for (const target of revealTargets) {
+    target.style.opacity = '0';
+    await new Promise(r => setTimeout(r, 50));
+  }
+
+  await new Promise(r => setTimeout(r, 150));
+  overlay.remove(); // Cleanup
+
+  // Final activation
   btn.classList.add('btn-looted');
   btn.classList.add('is-active');
 }
