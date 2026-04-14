@@ -46,12 +46,15 @@ const COMMANDS = {
     '<span class="t-muted">All modules online.</span>',
   ],
 
-  status: () => [
-    '<span class="t-warn">&gt;&gt; status --current</span>',
-    '<span class="t-muted">Open to high-impact enterprise collaborations.</span>',
-    '<span class="t-muted">Currently building cross-org M365 automation solutions.</span>',
-    '<span class="t-bright">[ AVAILABLE FOR CONTACT ]</span>',
-  ],
+  status: () => {
+    const years = ((new Date() - new Date('2023-11-20')) / (1000 * 60 * 60 * 24 * 365.25)).toFixed(2);
+    return [
+      '<span class="t-warn">&gt;&gt; status --current</span>',
+      '<span class="t-muted">Currently employed at Pemco International.</span>',
+      `<span class="t-muted">${years} years active.</span>`,
+      '<span class="t-bright">[ EMPLOYED ]</span>',
+    ];
+  },
 
   contact: () => [
     '<span class="t-muted">Uplink parameters:</span>',
