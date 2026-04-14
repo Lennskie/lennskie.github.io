@@ -128,13 +128,13 @@
   /* Name already uses clamp(6rem,20vw,14rem) — good on phones */
 
   .hero-btn {
-    margin-top: 2rem;
-    padding: 0.8rem 2rem;
-    font-size: 12px;
-    letter-spacing: 0.22em;
-    /* Full-width button on very small screens */
-    width: calc(100% - 4rem);
-    max-width: 280px;
+    margin-top: 1.5rem;
+    padding: 0;
+    font-size: 11px;
+    letter-spacing: 0.2em;
+    width: 210px;
+    height: 64px;
+    max-width: 90vw;
   }
 
   .hero-meta {
@@ -151,26 +151,40 @@
     line-height: 1.75;
   }
 
-  /* Stack hint chips onto own lines for tap-ability */
+  /* Centered, balanced flex layout for hints */
   .terminal-hints {
     display: flex;
     flex-wrap: wrap;
-    gap: 6px 10px;
+    justify-content: center;
+    align-items: center;
+    gap: 10px 14px;
     font-size: 10px;
-    line-height: 1;
+    line-height: 1.4;
+    text-align: center;
+    padding-top: 0.5rem;
+  }
+
+  .hint-label {
+    width: 100%;
+    margin-bottom: 6px;
+    color: var(--muted);
+    font-size: 9px;
+    letter-spacing: 0.15em;
   }
 
   .hint {
     background: var(--s2);
-    padding: 5px 8px;
+    padding: 7px 12px;
     /* Larger tap targets */
-    min-height: 28px;
+    min-height: 34px;
     display: flex;
     align-items: center;
+    border: 1px solid var(--s4);
+    border-radius: 2px;
   }
 
   /* Hide the pipe separators when chips are reflowed */
-  .terminal-hints > :not(.hint) { display: none; }
+  .pipe { display: none; }
 
   /* ── ABOUT ── */
   .entity-tag { font-size: 9px; }
