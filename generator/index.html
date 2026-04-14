@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>NEURAL LINK // GENERATOR</title>
+    <!-- Use relative paths to ensure css/fonts load from parent directory -->
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&family=Share+Tech+Mono&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="../CSS/style.css" />
+    <style>
+        @font-face {
+            font-family: "Maratype";
+            src: url("../FONTS/Maratype.otf");
+        }
+
+        body {
+            background-color: var(--void);
+            color: var(--text);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            margin: 0;
+            padding: 2rem;
+            position: relative;
+        }
+
+        /* Go back home link using standard site styles */
+        .home-link {
+            position: absolute;
+            top: 2rem;
+            left: 2rem;
+            font-family: var(--mono);
+            font-size: 11px;
+            color: var(--muted);
+            text-decoration: none;
+            letter-spacing: 0.1em;
+            transition: color 0.15s;
+            z-index: 100;
+        }
+        .home-link:hover { color: var(--neon); }
+
+        /* Setup area container */
+        .controls {
+            margin-bottom: 2rem;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 1rem;
+            z-index: 100; /* Above scanlines */
+            position: relative;
+        }
+
+        .controls label {
+            font-family: var(--mono);
+            font-size: 11px;
+            color: var(--neon-dim);
+            letter-spacing: 0.22em;
+        }
+
+        .controls input {
+            background: var(--s1);
+            border: 1px solid var(--s4);
+            color: var(--neon);
+            font-family: var(--mono);
+            font-size: 16px;
+            padding: 1rem 1.5rem;
+            width: 400px;
+            max-width: 90vw;
+            text-align: center;
+            outline: none;
+            letter-spacing: 0.1em;
+            transition: border-color 0.2s;
+        }
+
+        .controls input:focus {
+            border-color: var(--neon-dim);
+        }
+
+        /* 1200x630 container mimicking OG limits */
+        .preview-wrapper {
+            position: relative;
+            z-index: 10;
+        }
+
+        #og-canvas-container {
+            width: 1200px;
+            height: 630px;
+            background: #000000;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            overflow: hidden;
+            border-radius: 4px;
+            border: 1px solid var(--s3);
+            /* Scale it down cleanly so it fits on normal screens but preserves raw pixel capture size */
+            transform-origin: top center;
+            background: var(--void);
+        }
+
+        /* Subdued radial glow matching original site */
+        #og-canvas-container::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: radial-gradient(ellipse 55% 45% at 50% 50%, rgba(207,252,0,0.06) 0%, transparent 70%);
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        /* Localized scanlines so we don't pick up body scanlines in capture */
+        #og-canvas-container::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: repeating-linear-gradient(
+                to bottom,
+                transparent 0px,
+                transparent 3px,
+                rgba(255,255,255,0.02) 3px,
+                rgba(255,255,255,0.02) 4px
+            );
+            pointer-events: none;
+            z-index: 5;
+        }
+
+        .hero-label-gen {
+            font-family: var(--mono);
+            font-size: 16px;
+            color: var(--neon-dim);
+            letter-spacing: 0.25em;
+            margin-bottom: 2rem;
+            z-index: 2;
+        }
+
+        .hero-name-gen {
+            font-family: "Maratype", sans-serif;
+            font-size: 170px;
+            font-weight: 700;
+            color: var(--neon);
+            letter-spacing: 0.05em;
+            text-transform: uppercase;
+            line-height: 1;
+            text-shadow: 0 0 60px rgba(207,252,0,0.5), 0 0 120px rgba(207,252,0,0.2);
+            white-space: nowrap;
+            z-index: 2;
+            margin: 0;
+        }
+
+        /* We reuse hero styles somewhat via utility classes */
+        .download-btn {
+            margin-top: 2rem;
+            padding: 0.8rem 2rem;
+            background: #2a2a2a;
+            color: #eee;
+            border: 1px solid #444;
+            font-family: var(--mono);
+            font-size: 14px;
+            font-weight: 700;
+            letter-spacing: 0.2em;
+            cursor: pointer;
+            transition: all 0.2s;
+            position: relative;
+            z-index: 100;
+        }
+
+        .download-btn:hover {
+            background: var(--neon);
+            color: var(--void);
+            border-color: var(--neon);
+        }
+
+        .scale-hack {
+            /* Since the 1200px box is big, lets scale it in css on smaller screens but keep real pixel density for html2canvas */
+            zoom: 0.7; 
+        }
+
+        @media (max-width: 900px) {
+            .scale-hack { zoom: 0.4; }
+        }
+        @media (max-width: 500px) {
+            .scale-hack { zoom: 0.25; }
+        }
+
+    </style>
+</head>
+<body>
+
+    <a href="../" class="home-link">&lt; RETURN TO /ROOT</a>
+
+    <div class="controls">
+        <label>[ INPUT ENTITY ALIAS ]</label>
+        <input type="text" id="userInput" value="GENERATOR" autocomplete="off" spellcheck="false" />
+        <button class="download-btn" onclick="captureImage()">DOWNLOAD SCHEMATIC // .PNG</button>
+    </div>
+
+    <div class="preview-wrapper scale-hack">
+        <!-- The exact 1200x630 container for Open Graph -->
+        <div id="og-canvas-container">
+            <span class="hero-label-gen">[ INITIALIZING NEURAL LINK... ]</span>
+            <h1 class="hero-name-gen" id="nameDisplay">GENERATOR</h1>
+        </div>
+    </div>
+
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script>
+        const inputField = document.getElementById('userInput');
+        const displayField = document.getElementById('nameDisplay');
+
+        function updateDisplay() {
+            const raw = inputField.value;
+            displayField.textContent = raw ? raw : "\u00A0"; // Non breaking space if empty so layout doesn't collapse
+            
+            // Reset font size to default max
+            let currentFontSize = 170;
+            displayField.style.fontSize = currentFontSize + 'px';
+            
+            // Dynamically scale down font if it exceeds container width bounds (1200px max, we'll pad to 1100px)
+            const maxWidth = 1100;
+            while (displayField.scrollWidth > maxWidth && currentFontSize > 12) {
+                currentFontSize -= 2;
+                displayField.style.fontSize = currentFontSize + 'px';
+            }
+        }
+
+        // Realtime text syncing
+        inputField.addEventListener('input', updateDisplay);
+        
+        // Initial setup on load
+        window.addEventListener('load', updateDisplay);
+
+        function captureImage() {
+            const container = document.getElementById('og-canvas-container');
+            const btn = document.querySelector('.download-btn');
+            
+            const originalText = btn.textContent;
+            btn.textContent = "[ CAPTURING BUFFER... ]";
+
+            // We must wait for Maratype to be fully loaded before capturing
+            document.fonts.ready.then(() => {
+                html2canvas(container, {
+                    scale: 1, // Keep standard capture size
+                    backgroundColor: "#000000", 
+                    logging: false,
+                    useCORS: true
+                }).then(canvas => {
+                    const url = canvas.toDataURL("image/png");
+                    
+                    const finalName = 'generated.png';
+
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = finalName;
+                    document.body.appendChild(a);
+                    a.click();
+                    document.body.removeChild(a);
+                    
+                    btn.textContent = originalText;
+                }).catch(err => {
+                    console.error("Capture failed: ", err);
+                    btn.textContent = "[ CAPTURE PROCESS FAILED ]";
+                });
+            });
+        }
+    </script>
+</body>
+</html>
