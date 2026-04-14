@@ -470,7 +470,7 @@ body::before {
 ════════════════════════════════════════ */
 #contact-section {
   background: var(--s1);
-  padding: 6rem 0;
+  padding: 4rem 0;
   border-top: 1px solid var(--s2);
 }
 
@@ -485,9 +485,6 @@ body::before {
   display: flex;
   justify-content: center;
   gap: 2.5rem;
-  margin-top: 3rem;
-  padding-top: 2rem;
-  border-top: 1px solid var(--s3);
 }
 
 .footer-link {
