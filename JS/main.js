@@ -25,6 +25,8 @@ const COMMANDS = {
     '  <span class="t-bright">skills</span>    — list loaded skill modules',
     '  <span class="t-bright">status</span>    — current operational status',
     '  <span class="t-bright">contact</span>   — uplink parameters',
+    '  <span class="t-bright">ls</span>        — list directory contents',
+    '  <span class="t-bright">cat</span>       — read file contents',
     '  <span class="t-bright">clear</span>     — flush terminal buffer',
   ],
 
@@ -65,6 +67,18 @@ const COMMANDS = {
   generator: () => {
     document.location.href = '/generator'
   },
+
+  ls: () => [
+    '<span class="t-bright">contact</span> &nbsp;&nbsp;&nbsp;&nbsp; <span class="t-bright">skills</span> &nbsp;&nbsp;&nbsp;&nbsp; <span class="t-bright">status</span> &nbsp;&nbsp;&nbsp;&nbsp; <span class="t-bright">whoami</span>',
+  ],
+
+  dir: () => COMMANDS.ls(),
+
+  'cat contact': () => COMMANDS.contact(),
+  'cat skills': () => COMMANDS.skills(),
+  'cat status': () => COMMANDS.status(),
+  'cat whoami': () => COMMANDS.whoami(),
+  'cat': () => ['<span class="t-err">cat: missing file operand</span>'],
 
   clear: () => { output.innerHTML = ''; return null; },
 
@@ -233,15 +247,23 @@ async function runCmd(cmd) {
 // Keyboard input handler
 input.addEventListener('keydown', async function (e) {
   if (e.key !== 'Enter' || isTyping) return;
-  const cmd = input.value.trim().toLowerCase();
+  const cmd = input.value.trim().toLowerCase().replace(/\s+/g, ' ');
   if (!cmd) return;
 
-  appendLine('<span class="t-prompt-color">&gt;&gt;</span> ' + cmd);
+  const rawCmd = input.value.trim().toLowerCase(); // keep exact spacing for display if desired, but better to just use raw input or space normalized
+  appendLine('<span class="t-prompt-color">&gt;&gt;</span> ' + input.value.trim()); // display exactly what was typed, without leading/trailing edge spaces
   input.value = '';
 
   if (cmd === 'clear') { output.innerHTML = ''; return; }
 
-  const fn = COMMANDS[cmd];
+  let fn = COMMANDS[cmd];
+  
+  // Support for "cat <invalid_file>"
+  if (!fn && cmd.startsWith('cat ')) {
+    const filename = cmd.substring(4);
+    fn = () => ['<span class="t-err">cat: ' + filename + ': No such file or directory</span>'];
+  }
+
   if (fn) {
     const result = fn();
     if (result) await typeAllLines(result);
