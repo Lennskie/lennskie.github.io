@@ -113,12 +113,16 @@ function scrambleText(el, final, duration, settleTrigger = null) {
   return new Promise((resolve) => {
     el.style.opacity = '0';
     const chars = "!@#$%^&*()_+{}:\"<>?|;',./`~[]=-";
-    // Shades of grey and neon for the "noise" effect
     const colors = ["#666665", "#cffc00", "#a8d400", "#f4ffc8", "#121212"];
     const length = final.length;
     let frame = 0;
     const intervalTime = 40;
     const totalFrames = duration / intervalTime;
+
+    // Stagger character resolution frames (between 50% and 100% of the duration)
+    const resolveFrames = Array.from({ length }, () => 
+      Math.floor((Math.random() * 0.5 + 0.5) * totalFrames)
+    );
 
     let isSettling = !settleTrigger;
     if (settleTrigger) {
@@ -127,7 +131,6 @@ function scrambleText(el, final, duration, settleTrigger = null) {
 
     const interval = setInterval(() => {
       let currentHTML = "";
-      const progress = isSettling ? (frame / totalFrames) : 0;
 
       // Gradually increase overall opacity even during the noise phase
       const currentOp = parseFloat(el.style.opacity) || 0;
@@ -136,8 +139,8 @@ function scrambleText(el, final, duration, settleTrigger = null) {
       }
 
       for (let i = 0; i < length; i++) {
-        // Only settle characters if we are in the "settling" phase
-        if (isSettling && Math.random() < progress) {
+        // Individualized resolution for a "smoother" reveal
+        if (isSettling && frame >= resolveFrames[i]) {
           currentHTML += final[i];
         } else {
           const char = chars[Math.floor(Math.random() * chars.length)];
@@ -149,7 +152,8 @@ function scrambleText(el, final, duration, settleTrigger = null) {
       el.innerHTML = currentHTML;
       if (isSettling) frame++;
 
-      if (frame > totalFrames) {
+      // Wait until the global duration ends AND all characters are resolved
+      if (frame >= totalFrames && resolveFrames.every(f => frame >= f)) {
         clearInterval(interval);
         el.innerHTML = final;
         el.style.opacity = '1';
@@ -275,44 +279,78 @@ async function runHeroIntro() {
   label.style.minHeight = '';
   name.style.minHeight = '';
 
-  // 3. Reveal the start button in its un-looted state (-)
-  btn.textContent = "-";
-  btn.style.opacity = "1";
-  btn.classList.add('is-active');
+  // Added delay after intro is complete
+  await new Promise(r => setTimeout(r, 500));
+
+  // 3. Automated loot revelation immediately after the intro
+  await animateLootButton(btn);
 }
 
 // Logic for the square "loot box" button reveal
 async function animateLootButton(btn) {
-  // 1. Trigger the ripple animation
+  // 1. Initial State: Dark grey with a dash (-) [0.5s]
+  btn.textContent = "-";
+  btn.style.opacity = "1";
+  btn.style.background = "#2a2a2a";
+  btn.style.color = "#eee";
+  btn.style.fontSize = "18px";
+  
+  await new Promise(r => setTimeout(r, 500));
+
+  // 2. Dual-Slot Primed: Light grey (#989cab) with + + [0.2s]
+  btn.style.background = "#989cab";
+  btn.style.color = "#1a1a1a";
+  btn.style.display = "flex";
+  btn.style.justifyContent = "center";
+  btn.style.alignItems = "center";
+  btn.style.gap = "80px";
+  
+  const crosshair = `
+    <svg width="60" height="60" viewBox="0 0 100 100" style="width: 60px; height: 60px;">
+      <line x1="0" y1="50" x2="100" y2="50" stroke="currentColor" stroke-width="3" />
+      <line x1="50" y1="0" x2="50" y2="100" stroke="currentColor" stroke-width="3" />
+    </svg>
+  `;
+  btn.innerHTML = `${crosshair}${crosshair}`;
+
+  await new Promise(r => setTimeout(r, 200));
+
+  // 3. Dual-Slot Hot: Yellow with + + [0.3s]
+  btn.style.background = "var(--neon)";
+  
+  await new Promise(r => setTimeout(r, 300));
+
+  // 4. Action State: Trigger the ripple animation
   btn.classList.add('btn-rippling');
   
-  // 2. Halfway through the 0.8s ripple, reveal the "obscured" text
+  // 5. Reveal "obscured" ENTER halfway through ripple
   await new Promise(r => setTimeout(r, 400));
   btn.classList.add('text-obscured');
+  btn.style.fontSize = "18px"; 
+  btn.style.fontWeight = "700";
+  btn.style.fontFamily = "var(--mono)";
+  btn.style.gap = "0";
+  btn.style.color = "var(--void)";
   btn.textContent = "ENTER";
 
-  // 3. Complete the transition as the ripple spreads to the edges
+  // 6. Final State: Resolve to yellow looted box
   await new Promise(r => setTimeout(r, 400));
   btn.classList.remove('btn-rippling', 'text-obscured');
+  btn.style.background = ""; // Reset for CSS classes
+  btn.style.color = "";
+  btn.style.fontSize = "";
+  btn.style.letterSpacing = "";
   btn.classList.add('btn-looted');
+  btn.classList.add('is-active');
 }
 
 window.addEventListener('DOMContentLoaded', runHeroIntro);
 
 // ── HERO START BUTTON ──
-let isLooted = false;
-
-async function handleStart() {
+function handleStart() {
   const btn = document.getElementById('start-btn');
   
-  // First click: Perform the "looting" reveal from Marathon
-  if (!isLooted) {
-    isLooted = true;
-    await animateLootButton(btn);
-    return;
-  }
-
-  // Second click: Proceed to Terminal
+  // Clean exit for the button
   btn.style.opacity = '0';
   btn.style.pointerEvents = 'none';
   btn.style.animation = 'crtFlicker 0.05s 3';

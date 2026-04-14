@@ -100,14 +100,14 @@ body::before {
 
 .hero-btn {
   margin-top: 2.5rem;
-  padding: 1.1rem 4.5rem;
-  min-width: 195px;
-  min-height: 54px;
+  padding: 0;
+  width: 260px;
+  height: 80px;
   background: #2a2a2a;
   border: 1px solid #444;
   color: #eee;
   font-family: var(--mono);
-  font-size: 16px;
+  font-size: 18px;
   font-weight: 700;
   letter-spacing: 0.35em;
   text-transform: uppercase;
@@ -157,12 +157,12 @@ body::before {
   position: absolute;
   top: 0; left: 0; right: 0; bottom: 0;
   background-image: 
-    linear-gradient(45deg, var(--neon) 25%, transparent 25%), 
-    linear-gradient(-45deg, var(--neon) 25%, transparent 25%), 
-    linear-gradient(45deg, transparent 75%, var(--neon) 75%), 
-    linear-gradient(-45deg, transparent 75%, var(--neon) 75%);
-  background-size: 20px 20px;
-  background-position: 0 0, 0 10px, 10px -10px, -10px 0px;
+    linear-gradient(45deg, #a8ab98 25%, transparent 25%), 
+    linear-gradient(-45deg, #a8ab98 25%, transparent 25%), 
+    linear-gradient(45deg, transparent 75%, #a8ab98 75%), 
+    linear-gradient(-45deg, transparent 75%, #a8ab98 75%);
+  background-size: 32px 32px;
+  background-position: 0 0, 0 16px, 16px -16px, -16px 0px;
   clip-path: circle(0% at 50% 50%);
   z-index: 2;
   pointer-events: none;
@@ -592,4 +592,13 @@ body::before {
   .about-grid    { grid-template-columns: 1fr; gap: 3rem; }
   .hobbies-grid  { grid-template-columns: 1fr; }
   .about-meta    { gap: 1.5rem; }
+}
+/* Mobile Button Scaling */
+@media screen and (max-width: 768px) {
+  .hero-btn {
+    padding: 0.8rem 2.8rem;
+    min-width: 140px;
+    min-height: 44px;
+    font-size: 14px;
+  }
 }
