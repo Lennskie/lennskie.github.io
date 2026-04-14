@@ -157,8 +157,8 @@ body::before {
   position: absolute;
   top: 0; left: 0; right: 0; bottom: 0;
   display: grid;
-  grid-template-columns: repeat(8, 1fr);
-  grid-template-rows: repeat(2, 1fr);
+  grid-template-columns: repeat(13, 1fr);
+  grid-template-rows: repeat(4, 1fr);
   z-index: 2;
   pointer-events: none;
 }
@@ -166,7 +166,7 @@ body::before {
 .button-fill-grid div {
   background: #a8ab98;
   opacity: 1;
-  transition: opacity 0.3s;
+  transition: opacity 0.05s;
 }
 
 .hero-meta {

@@ -80,7 +80,7 @@ function appendLine(html) {
 async function typeLine(html, speed, container = null) {
   const isCustom = !!container;
   const div = isCustom ? container : document.createElement('div');
-  
+
   if (!isCustom) {
     div.className = 't-line';
     output.appendChild(div);
@@ -120,7 +120,7 @@ function scrambleText(el, final, duration, settleTrigger = null) {
     const totalFrames = duration / intervalTime;
 
     // Stagger character resolution frames (between 50% and 100% of the duration)
-    const resolveFrames = Array.from({ length }, () => 
+    const resolveFrames = Array.from({ length }, () =>
       Math.floor((Math.random() * 0.5 + 0.5) * totalFrames)
     );
 
@@ -148,7 +148,7 @@ function scrambleText(el, final, duration, settleTrigger = null) {
           currentHTML += `<span style="color:${color}; opacity: 0.7">${char}</span>`;
         }
       }
-      
+
       el.innerHTML = currentHTML;
       if (isSettling) frame++;
 
@@ -268,9 +268,9 @@ async function runHeroIntro() {
   // 1. Label starts typing
   // 2. Name starts noise/fade-in but DOES NOT settle until settleTrigger resolves
   const scramblePromise = scrambleText(name, nameText, 1500, settleTrigger);
-  
+
   await typeLine(labelText, 30, label);
-  
+
   // Label is done! Signal the name to start settling
   triggerResolve();
   await scramblePromise;
@@ -294,7 +294,7 @@ async function animateLootButton(btn) {
   btn.style.background = "#2a2a2a";
   btn.style.color = "#eee";
   btn.style.fontSize = "18px";
-  
+
   await new Promise(r => setTimeout(r, 500));
 
   // 2. Eye Scan Phase: Scanning eyes sweep left-to-right in each slot
@@ -322,14 +322,10 @@ async function animateLootButton(btn) {
   // Look left
   pupils.forEach(p => p.setAttribute('cx', '35'));
   await new Promise(r => setTimeout(r, 300));
-  
+
   // Look right
   pupils.forEach(p => p.setAttribute('cx', '65'));
   await new Promise(r => setTimeout(r, 300));
-  
-  // Return to center
-  pupils.forEach(p => p.setAttribute('cx', '50'));
-  await new Promise(r => setTimeout(r, 200));
 
   // 3. Dual-Slot Primed: Lavender grey with SVG crosshairs [0.2s]
   btn.style.background = "#989cab";
@@ -338,7 +334,7 @@ async function animateLootButton(btn) {
   btn.style.justifyContent = "center";
   btn.style.alignItems = "center";
   btn.style.gap = "80px";
-  
+
   const crosshair = `
     <svg width="60" height="60" viewBox="0 0 100 100" style="width: 60px; height: 60px;">
       <line x1="0" y1="50" x2="100" y2="50" stroke="currentColor" stroke-width="3" />
@@ -361,21 +357,21 @@ async function animateLootButton(btn) {
 
   const overlay = document.createElement('div');
   overlay.className = 'button-fill-grid';
-  
+
   const revealTargets = [];
-  const rows = 2;
-  const cols = 8;
+  const rows = 4;
+  const cols = 13;
 
   for (let r = 0; r < rows; r++) {
     for (let c = 0; c < cols; c++) {
       const s = document.createElement('div');
       overlay.appendChild(s);
-      
+
       // Start with a checkerboard pattern
       if ((r + c) % 2 !== 0) {
-        s.style.opacity = '0'; // Already revealed (yellow)
+        s.style.opacity = '0'; // Already revealed
       } else {
-        s.style.opacity = '1'; // Covering the content (lavender)
+        s.style.opacity = '1'; // Covering the content
         revealTargets.push(s);
       }
     }
@@ -388,9 +384,13 @@ async function animateLootButton(btn) {
   // Randomly dissolve the remaining opaque squares
   revealTargets.sort(() => Math.random() - 0.5);
 
-  for (const target of revealTargets) {
-    target.style.opacity = '0';
-    await new Promise(r => setTimeout(r, 50));
+  for (let i = 0; i < revealTargets.length; i++) {
+    revealTargets[i].style.opacity = '0';
+
+    // Smooth acceleration: last 5 squares dissolve almost instantly
+    const remaining = revealTargets.length - 1 - i;
+    const delay = remaining < 5 ? 5 : 30; // ~650ms total sequence
+    await new Promise(r => setTimeout(r, delay));
   }
 
   await new Promise(r => setTimeout(r, 150));
@@ -406,7 +406,7 @@ window.addEventListener('DOMContentLoaded', runHeroIntro);
 // ── HERO START BUTTON ──
 function handleStart() {
   const btn = document.getElementById('start-btn');
-  
+
   // Clean exit for the button
   btn.style.opacity = '0';
   btn.style.pointerEvents = 'none';
