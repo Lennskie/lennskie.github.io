@@ -76,12 +76,19 @@ function appendLine(html) {
   output.scrollTop = output.scrollHeight;
 }
 
-// Async typing output for a single line
-async function typeLine(html, speed) {
-  const div = document.createElement('div');
-  div.className = 't-line';
+// Async typing output for any element (defaults to a new line in terminal)
+async function typeLine(html, speed, container = null) {
+  const isCustom = !!container;
+  const div = isCustom ? container : document.createElement('div');
+
+  if (!isCustom) {
+    div.className = 't-line';
+    output.appendChild(div);
+  } else {
+    div.style.opacity = '1';
+  }
+
   div.innerHTML = html;
-  output.appendChild(div);
 
   // Collect all text nodes for sequential typing
   const textNodes = [];
@@ -95,10 +102,65 @@ async function typeLine(html, speed) {
   for (let i = 0; i < textNodes.length; i++) {
     for (const char of originalTexts[i]) {
       textNodes[i].textContent += char;
-      output.scrollTop = output.scrollHeight;
+      if (!isCustom) output.scrollTop = output.scrollHeight;
       await new Promise(r => setTimeout(r, speed));
     }
   }
+}
+
+// Scramble effect for high-impact labels
+function scrambleText(el, final, duration, settleTrigger = null) {
+  return new Promise((resolve) => {
+    el.style.opacity = '0';
+    const chars = "!@#$%^&*()_+{}:\"<>?|;',./`~[]=-";
+    const colors = ["#666665", "#cffc00", "#a8d400", "#f4ffc8", "#121212"];
+    const length = final.length;
+    let frame = 0;
+    const intervalTime = 40;
+    const totalFrames = duration / intervalTime;
+
+    // Stagger character resolution frames (between 50% and 100% of the duration)
+    const resolveFrames = Array.from({ length }, () =>
+      Math.floor((Math.random() * 0.5 + 0.5) * totalFrames)
+    );
+
+    let isSettling = !settleTrigger;
+    if (settleTrigger) {
+      settleTrigger.then(() => isSettling = true);
+    }
+
+    const interval = setInterval(() => {
+      let currentHTML = "";
+
+      // Gradually increase overall opacity even during the noise phase
+      const currentOp = parseFloat(el.style.opacity) || 0;
+      if (currentOp < 1) {
+        el.style.opacity = (currentOp + (isSettling ? 0.05 : 0.02)).toFixed(2);
+      }
+
+      for (let i = 0; i < length; i++) {
+        // Individualized resolution for a "smoother" reveal
+        if (isSettling && frame >= resolveFrames[i]) {
+          currentHTML += final[i];
+        } else {
+          const char = chars[Math.floor(Math.random() * chars.length)];
+          const color = colors[Math.floor(Math.random() * colors.length)];
+          currentHTML += `<span style="color:${color}; opacity: 0.7">${char}</span>`;
+        }
+      }
+
+      el.innerHTML = currentHTML;
+      if (isSettling) frame++;
+
+      // Wait until the global duration ends AND all characters are resolved
+      if (frame >= totalFrames && resolveFrames.every(f => frame >= f)) {
+        clearInterval(interval);
+        el.innerHTML = final;
+        el.style.opacity = '1';
+        resolve();
+      }
+    }, intervalTime);
+  });
 }
 
 // Orchestrates typing multiple lines with adaptive speed
@@ -178,11 +240,177 @@ input.addEventListener('keydown', async function (e) {
   }
 });
 
+// ── HERO INITIALIZATION ──
+async function runHeroIntro() {
+  const label = document.getElementById('hero-label');
+  const name = document.getElementById('hero-name');
+  const btn = document.getElementById('start-btn');
+
+  if (!label || !name || !btn) return;
+
+  const labelText = label.textContent;
+  const nameText = name.textContent;
+
+  // Preserve heights to prevent layout jumping while text is cleared
+  const labelH = label.offsetHeight;
+  const nameH = name.offsetHeight;
+  label.style.minHeight = labelH + 'px';
+  name.style.minHeight = nameH + 'px';
+
+  label.textContent = "";
+  name.textContent = "";
+
+  // Trigger setup for staggered resolution
+  let triggerResolve;
+  const settleTrigger = new Promise(resolve => triggerResolve = resolve);
+
+  // Start both in parallel: 
+  // 1. Label starts typing
+  // 2. Name starts noise/fade-in but DOES NOT settle until settleTrigger resolves
+  const scramblePromise = scrambleText(name, nameText, 1500, settleTrigger);
+
+  await typeLine(labelText, 30, label);
+
+  // Label is done! Signal the name to start settling
+  triggerResolve();
+  await scramblePromise;
+
+  // Clear temporary heights
+  label.style.minHeight = '';
+  name.style.minHeight = '';
+
+  // Added delay after intro is complete
+  await new Promise(r => setTimeout(r, 500));
+
+  // 3. Automated loot revelation immediately after the intro
+  await animateLootButton(btn);
+}
+
+// Logic for the square "loot box" button reveal
+async function animateLootButton(btn) {
+  // 1. Initial State: Dark grey with a dash (-) [0.5s]
+  btn.textContent = "-";
+  btn.style.opacity = "1";
+  btn.style.background = "#2a2a2a";
+  btn.style.color = "#eee";
+  btn.style.fontSize = "18px";
+
+  await new Promise(r => setTimeout(r, 500));
+
+  // 2. Eye Scan Phase: Scanning eyes sweep left-to-right in each slot
+  btn.style.display = "flex";
+  btn.style.justifyContent = "center";
+  btn.style.alignItems = "center";
+  btn.style.gap = "80px";
+
+  const eyeSvg = `
+    <svg width="50" height="30" viewBox="0 0 100 60" style="width: 50px; height: 30px;">
+      <path d="M10 30 L30 10 L70 10 L90 30 L70 50 L30 50 Z" 
+            fill="none" stroke="#666" stroke-width="3"/>
+      <circle cx="50" cy="30" r="10" fill="#666" class="eye-pupil"/>
+    </svg>
+  `;
+  btn.innerHTML = `${eyeSvg}${eyeSvg}`;
+
+  // Animate pupils left-to-right
+  const pupils = btn.querySelectorAll('.eye-pupil');
+  pupils.forEach(p => {
+    p.style.transition = 'cx 0.15s ease-in-out';
+  });
+
+  await new Promise(r => setTimeout(r, 50));
+  // Look left
+  pupils.forEach(p => p.setAttribute('cx', '35'));
+  await new Promise(r => setTimeout(r, 300));
+
+  // Look right
+  pupils.forEach(p => p.setAttribute('cx', '65'));
+  await new Promise(r => setTimeout(r, 300));
+
+  // 3. Dual-Slot Primed: Lavender grey with SVG crosshairs [0.2s]
+  btn.style.background = "#989cab";
+  btn.style.color = "#1a1a1a";
+  btn.style.display = "flex";
+  btn.style.justifyContent = "center";
+  btn.style.alignItems = "center";
+  btn.style.gap = "80px";
+
+  const crosshair = `
+    <svg width="60" height="60" viewBox="0 0 100 100" style="width: 60px; height: 60px;">
+      <line x1="0" y1="50" x2="100" y2="50" stroke="currentColor" stroke-width="3" />
+      <line x1="50" y1="0" x2="50" y2="100" stroke="currentColor" stroke-width="3" />
+    </svg>
+  `;
+  btn.innerHTML = `${crosshair}${crosshair}`;
+
+  await new Promise(r => setTimeout(r, 200));
+
+  // 3. Grid-Dissolve Phase: Cover the target state and reveal it randomly
+  // Prep the target look beneath the grid
+  btn.style.background = "var(--neon)";
+  btn.style.color = "var(--void)";
+  btn.style.fontSize = "18px";
+  btn.style.fontWeight = "700";
+  btn.style.fontFamily = "var(--mono)";
+  btn.style.gap = "0";
+  btn.innerHTML = "ENTER";
+
+  const overlay = document.createElement('div');
+  overlay.className = 'button-fill-grid';
+
+  const revealTargets = [];
+  const rows = 4;
+  const cols = 13;
+
+  for (let r = 0; r < rows; r++) {
+    for (let c = 0; c < cols; c++) {
+      const s = document.createElement('div');
+      overlay.appendChild(s);
+
+      // Start with a checkerboard pattern
+      if ((r + c) % 2 !== 0) {
+        s.style.opacity = '0'; // Already revealed
+      } else {
+        s.style.opacity = '1'; // Covering the content
+        revealTargets.push(s);
+      }
+    }
+  }
+  btn.appendChild(overlay);
+
+  // Pause on the checkerboard pattern before resolving
+  await new Promise(r => setTimeout(r, 300));
+
+  // Randomly dissolve the remaining opaque squares
+  revealTargets.sort(() => Math.random() - 0.5);
+
+  for (let i = 0; i < revealTargets.length; i++) {
+    revealTargets[i].style.opacity = '0';
+
+    // Smooth acceleration: last 5 squares dissolve almost instantly
+    const remaining = revealTargets.length - 1 - i;
+    const delay = remaining < 5 ? 5 : 30; // ~650ms total sequence
+    await new Promise(r => setTimeout(r, delay));
+  }
+
+  await new Promise(r => setTimeout(r, 150));
+  overlay.remove(); // Cleanup
+
+  // Final activation
+  btn.classList.add('btn-looted');
+  btn.classList.add('is-active');
+}
+
+window.addEventListener('DOMContentLoaded', runHeroIntro);
+
 // ── HERO START BUTTON ──
 function handleStart() {
   const btn = document.getElementById('start-btn');
+
+  // Clean exit for the button
+  btn.style.opacity = '0';
+  btn.style.pointerEvents = 'none';
   btn.style.animation = 'crtFlicker 0.05s 3';
-  btn.disabled = true;
 
   setTimeout(() => {
     output.innerHTML = '';
