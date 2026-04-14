@@ -60,6 +60,10 @@ const COMMANDS = {
     '  <span class="t-bright">EMAIL</span>     lenn.crochart@gmail.com',
   ],
 
+  generator: () => {
+    document.location.href = '/generator'
+  },
+
   clear: () => { output.innerHTML = ''; return null; },
 
   'sudo boot': () => runBoot(false),
