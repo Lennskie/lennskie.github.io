@@ -297,7 +297,41 @@ async function animateLootButton(btn) {
   
   await new Promise(r => setTimeout(r, 500));
 
-  // 2. Dual-Slot Primed: Light grey (#989cab) with + + [0.2s]
+  // 2. Eye Scan Phase: Scanning eyes sweep left-to-right in each slot
+  btn.style.display = "flex";
+  btn.style.justifyContent = "center";
+  btn.style.alignItems = "center";
+  btn.style.gap = "80px";
+
+  const eyeSvg = `
+    <svg width="50" height="30" viewBox="0 0 100 60" style="width: 50px; height: 30px;">
+      <path d="M10 30 L30 10 L70 10 L90 30 L70 50 L30 50 Z" 
+            fill="none" stroke="#666" stroke-width="3"/>
+      <circle cx="50" cy="30" r="10" fill="#666" class="eye-pupil"/>
+    </svg>
+  `;
+  btn.innerHTML = `${eyeSvg}${eyeSvg}`;
+
+  // Animate pupils left-to-right
+  const pupils = btn.querySelectorAll('.eye-pupil');
+  pupils.forEach(p => {
+    p.style.transition = 'cx 0.15s ease-in-out';
+  });
+
+  await new Promise(r => setTimeout(r, 50));
+  // Look left
+  pupils.forEach(p => p.setAttribute('cx', '35'));
+  await new Promise(r => setTimeout(r, 300));
+  
+  // Look right
+  pupils.forEach(p => p.setAttribute('cx', '65'));
+  await new Promise(r => setTimeout(r, 300));
+  
+  // Return to center
+  pupils.forEach(p => p.setAttribute('cx', '50'));
+  await new Promise(r => setTimeout(r, 200));
+
+  // 3. Dual-Slot Primed: Lavender grey with SVG crosshairs [0.2s]
   btn.style.background = "#989cab";
   btn.style.color = "#1a1a1a";
   btn.style.display = "flex";
