@@ -48,7 +48,6 @@ const COMMANDS = {
     '  <span class="t-bright">LINKEDIN</span>  linkedin.com/in/lenn-crochart',
     '  <span class="t-bright">GITHUB</span>    github.com/lennskie',
     '  <span class="t-bright">EMAIL</span>     lenn.crochart@gmail.com',
-    '<span class="t-warn">Or scroll down to ESTABLISH_UPLINK.</span>',
   ],
 
   clear: () => { output.innerHTML = ''; return null; },

@@ -201,9 +201,6 @@
   .section-count { font-size: 10px; }
 
   /* ── CONTACT ── */
-  .contact-sub { font-size: 9px; letter-spacing: 0.12em; }
-
-  .t-submit { font-size: 12px; letter-spacing: 0.18em; padding: 0.9rem; }
 
   .contact-footer {
     flex-direction: column;
