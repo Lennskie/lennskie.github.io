@@ -11,10 +11,10 @@ let isTyping = false;
 
 // Typing speed configuration (ms per character)
 const SPEEDS = {
-  slow: 25,
-  med: 15,
-  fast: 8,
-  turbo: 4
+  slow: 15,
+  med: 8,
+  fast: 4,
+  turbo: 2
 };
 
 // ── COMMAND DEFINITIONS ──
@@ -174,7 +174,7 @@ input.addEventListener('keydown', async function (e) {
     const result = fn();
     if (result) await typeAllLines(result);
   } else {
-    appendLine('<span class="t-warn">command not found: ' + cmd + ' — try <span style="color:var(--neon)">help</span></span>');
+    await typeAllLines(['<span class="t-err">command not found: ' + cmd + ' — try <span style="color:var(--neon)">help</span></span>']);
   }
 });
 
