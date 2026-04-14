@@ -83,7 +83,6 @@ body::before {
   letter-spacing: 0.22em;
   margin-bottom: 1.5rem;
   opacity: 0;
-  animation: fadeUp 0.6s ease 0.3s forwards;
 }
 
 .hero-name {
@@ -96,8 +95,7 @@ body::before {
   line-height: 1;
   text-shadow: 0 0 60px rgba(207,252,0,0.45), 0 0 120px rgba(207,252,0,0.15);
   opacity: 0;
-  animation: glitchIn 0.9s ease 0.7s forwards;
-  white-space: nowrap 
+  white-space: nowrap;
 }
 
 .hero-btn {
@@ -113,7 +111,6 @@ body::before {
   text-transform: uppercase;
   cursor: pointer;
   opacity: 0;
-  animation: fadeUp 0.5s ease 1.3s forwards;
   transition: background 0.15s, box-shadow 0.15s;
   position: relative;
   z-index: 1;

@@ -76,12 +76,19 @@ function appendLine(html) {
   output.scrollTop = output.scrollHeight;
 }
 
-// Async typing output for a single line
-async function typeLine(html, speed) {
-  const div = document.createElement('div');
-  div.className = 't-line';
+// Async typing output for any element (defaults to a new line in terminal)
+async function typeLine(html, speed, container = null) {
+  const isCustom = !!container;
+  const div = isCustom ? container : document.createElement('div');
+  
+  if (!isCustom) {
+    div.className = 't-line';
+    output.appendChild(div);
+  } else {
+    div.style.opacity = '1';
+  }
+
   div.innerHTML = html;
-  output.appendChild(div);
 
   // Collect all text nodes for sequential typing
   const textNodes = [];
@@ -95,10 +102,41 @@ async function typeLine(html, speed) {
   for (let i = 0; i < textNodes.length; i++) {
     for (const char of originalTexts[i]) {
       textNodes[i].textContent += char;
-      output.scrollTop = output.scrollHeight;
+      if (!isCustom) output.scrollTop = output.scrollHeight;
       await new Promise(r => setTimeout(r, speed));
     }
   }
+}
+
+// Scramble effect for high-impact labels
+function scrambleText(el, final, duration) {
+  return new Promise((resolve) => {
+    el.style.opacity = '1';
+    const chars = "!@#$%^&*()_+{}:\"<>?|;',./`~[]=-";
+    const length = final.length;
+    let frame = 0;
+    const intervalTime = 40;
+    const totalFrames = duration / intervalTime;
+
+    const interval = setInterval(() => {
+      let current = "";
+      for (let i = 0; i < length; i++) {
+        if (Math.random() < frame / totalFrames) {
+          current += final[i];
+        } else {
+          current += chars[Math.floor(Math.random() * chars.length)];
+        }
+      }
+      el.textContent = current;
+      frame++;
+
+      if (frame > totalFrames) {
+        clearInterval(interval);
+        el.textContent = final;
+        resolve();
+      }
+    }, intervalTime);
+  });
 }
 
 // Orchestrates typing multiple lines with adaptive speed
@@ -177,6 +215,33 @@ input.addEventListener('keydown', async function (e) {
     await typeAllLines(['<span class="t-err">command not found: ' + cmd + ' — try <span style="color:var(--neon)">help</span></span>']);
   }
 });
+
+// ── HERO INITIALIZATION ──
+async function runHeroIntro() {
+  const label = document.getElementById('hero-label');
+  const name = document.getElementById('hero-name');
+  const btn = document.getElementById('start-btn');
+
+  if (!label || !name || !btn) return;
+
+  const labelText = label.textContent;
+  const nameText = name.textContent;
+
+  label.textContent = "";
+  name.textContent = "";
+
+  // 1. Type the neural link label
+  await typeLine(labelText, 30, label);
+  
+  // 2. Scramble the name in
+  await scrambleText(name, nameText, 1200);
+
+  // 3. Reveal the start button
+  btn.style.opacity = '1';
+  btn.style.animation = 'fadeUp 0.6s ease forwards';
+}
+
+window.addEventListener('DOMContentLoaded', runHeroIntro);
 
 // ── HERO START BUTTON ──
 function handleStart() {
