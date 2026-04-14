@@ -7,6 +7,16 @@
 const output = document.getElementById('terminal-output');
 const input = document.getElementById('t-input');
 
+let isTyping = false;
+
+// Typing speed configuration (ms per character)
+const SPEEDS = {
+  slow: 25,
+  med: 15,
+  fast: 8,
+  turbo: 4
+};
+
 // ── COMMAND DEFINITIONS ──
 const COMMANDS = {
   help: () => [
@@ -56,12 +66,64 @@ const COMMANDS = {
 };
 
 // ── TERMINAL OUTPUT ──
+
+// Standard instant output
 function appendLine(html) {
   const div = document.createElement('div');
   div.className = 't-line';
   div.innerHTML = html;
   output.appendChild(div);
   output.scrollTop = output.scrollHeight;
+}
+
+// Async typing output for a single line
+async function typeLine(html, speed) {
+  const div = document.createElement('div');
+  div.className = 't-line';
+  div.innerHTML = html;
+  output.appendChild(div);
+
+  // Collect all text nodes for sequential typing
+  const textNodes = [];
+  const walker = document.createTreeWalker(div, NodeFilter.SHOW_TEXT, null, false);
+  let n;
+  while (n = walker.nextNode()) textNodes.push(n);
+
+  const originalTexts = textNodes.map(node => node.textContent);
+  textNodes.forEach(node => node.textContent = '');
+
+  for (let i = 0; i < textNodes.length; i++) {
+    for (const char of originalTexts[i]) {
+      textNodes[i].textContent += char;
+      output.scrollTop = output.scrollHeight;
+      await new Promise(r => setTimeout(r, speed));
+    }
+  }
+}
+
+// Orchestrates typing multiple lines with adaptive speed
+async function typeAllLines(lines) {
+  if (!lines || lines.length === 0) return;
+
+  isTyping = true;
+  input.disabled = true;
+
+  // Calculate speed based on total character length
+  const totalText = lines.join('').replace(/<[^>]*>/g, '');
+  const len = totalText.length;
+  let speed = SPEEDS.med;
+
+  if (len < 50) speed = SPEEDS.slow;
+  else if (len > 300) speed = SPEEDS.turbo;
+  else if (len > 150) speed = SPEEDS.fast;
+
+  for (const line of lines) {
+    await typeLine(line, speed);
+  }
+
+  isTyping = false;
+  input.disabled = false;
+  input.focus();
 }
 
 // Boot sequence — called on start or via 'sudo boot' command
@@ -76,8 +138,8 @@ function runBoot(autoType) {
   ];
 
   if (autoType) {
-    // Staggered print for the boot animation
-    lines.forEach((line, i) => setTimeout(() => appendLine(line), i * 200));
+    // Coordinated typing sequence for the boot animation
+    typeAllLines(lines);
     return null;
   }
 
@@ -85,19 +147,20 @@ function runBoot(autoType) {
 }
 
 // Public helper used by hint spans in the HTML
-function runCmd(cmd) {
+async function runCmd(cmd) {
+  if (isTyping) return;
   appendLine('<span class="t-prompt-color">&gt;&gt;</span> ' + cmd);
   const fn = COMMANDS[cmd];
   if (fn) {
     const result = fn();
-    if (result) result.forEach(l => appendLine(l));
+    if (result) await typeAllLines(result);
   }
   input.focus();
 }
 
 // Keyboard input handler
-input.addEventListener('keydown', function (e) {
-  if (e.key !== 'Enter') return;
+input.addEventListener('keydown', async function (e) {
+  if (e.key !== 'Enter' || isTyping) return;
   const cmd = input.value.trim().toLowerCase();
   if (!cmd) return;
 
@@ -109,7 +172,7 @@ input.addEventListener('keydown', function (e) {
   const fn = COMMANDS[cmd];
   if (fn) {
     const result = fn();
-    if (result) result.forEach(l => appendLine(l));
+    if (result) await typeAllLines(result);
   } else {
     appendLine('<span class="t-warn">command not found: ' + cmd + ' — try <span style="color:var(--neon)">help</span></span>');
   }
