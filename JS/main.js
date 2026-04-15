@@ -11,12 +11,12 @@ let isTyping = false;
 
 // Unified Skills Configuration
 const MY_SKILLS = [
-  { name: 'Microsoft Entra ID', val: 95 },
-  { name: 'Active Directory', val: 90 },
-  { name: 'Office 365 / M365', val: 92 },
-  { name: 'SharePoint / OneDrive', val: 88 },
-  { name: 'Azure / Intune', val: 80 },
-  { name: 'PowerShell / VBA', val: 85 },
+  { name: '(Azure) Active Directory & Windows Servers', val: 85 },
+  { name: 'Office 365', val: 90 },
+  { name: 'Networks', val: 80 },
+  { name: 'Documentation', val: 90 },
+  { name: 'Azure & Intune', val: 80 },
+  { name: 'PowerShell & General scripting', val: 85 },
 ];
 
 // Typing speed configuration (ms per character)
