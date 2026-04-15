@@ -461,6 +461,26 @@ body::before {
   border-right: 1px solid var(--s2);
 }
 
+
+.hobby-locked .hobby-content {
+  visibility: hidden; /* keeps layout */
+}
+
+
+
+.hobby-locked:not(.hobby-unlocked)::after {
+  content: '-';
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  font-size: 2rem;
+  opacity: 0.6;
+  pointer-events: none;
+}
+
+
+
 .hobby-card:last-child {
   border-right: none;
 }

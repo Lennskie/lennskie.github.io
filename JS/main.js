@@ -592,7 +592,6 @@ function initHobbyCards() {
     const originalContent = card.innerHTML;
 
     // Replace with dash placeholder
-    card.innerHTML = '-';
     card.classList.add('hobby-locked');
 
     let isRevealing = false;
@@ -601,6 +600,8 @@ function initHobbyCards() {
     card.addEventListener('mouseenter', async () => {
       if (isRevealing || hasRevealed) return;
       isRevealing = true;
+
+      card.classList.add('hobby-unlocked');
 
       await runLootReveal(card, {
         eyeCount: 4,
@@ -619,6 +620,7 @@ function initHobbyCards() {
       // Clean up inline styles from the reveal animation
       card.removeAttribute('style');
       card.innerHTML = originalContent;
+      card.classList.remove('hobby-locked');
       card.classList.add('hobby-revealed');
 
       isRevealing = false;
