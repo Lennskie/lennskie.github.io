@@ -601,6 +601,7 @@ function initHobbyCards() {
       if (isRevealing || hasRevealed) return;
       isRevealing = true;
 
+      //remove the dash ASAP
       card.classList.add('hobby-unlocked');
 
       await runLootReveal(card, {
