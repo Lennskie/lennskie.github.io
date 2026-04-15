@@ -9,6 +9,16 @@ const input = document.getElementById('t-input');
 
 let isTyping = false;
 
+// Unified Skills Configuration
+const MY_SKILLS = [
+  { name: 'Microsoft Entra ID', val: 95 },
+  { name: 'Active Directory', val: 90 },
+  { name: 'Office 365 / M365', val: 92 },
+  { name: 'SharePoint / OneDrive', val: 88 },
+  { name: 'Azure / Intune', val: 80 },
+  { name: 'PowerShell / VBA', val: 85 },
+];
+
 // Typing speed configuration (ms per character)
 const SPEEDS = {
   slow: 8,
@@ -35,16 +45,14 @@ const COMMANDS = {
     '<span class="t-bright">To see my skills, type: </span>skills',
   ],
 
-  skills: () => [
-    '<span class="t-muted">Loading skill modules...</span>',
-    '  <span class="t-bright">[ 95% ]</span> <span class="t-muted">Microsoft Entra ID</span>',
-    '  <span class="t-bright">[ 90% ]</span> <span class="t-muted">Active Directory</span>',
-    '  <span class="t-bright">[ 92% ]</span> <span class="t-muted">Office 365 / M365</span>',
-    '  <span class="t-bright">[ 88% ]</span> <span class="t-muted">SharePoint / OneDrive</span>',
-    '  <span class="t-bright">[ 80% ]</span> <span class="t-muted">Azure / Intune</span>',
-    '  <span class="t-bright">[ 85% ]</span> <span class="t-muted">PowerShell / VBA</span>',
-    '<span class="t-muted">All modules online.</span>',
-  ],
+  skills: () => {
+    const lines = ['<span class="t-muted">Loading skill modules...</span>'];
+    MY_SKILLS.forEach(skill => {
+      lines.push(`  <span class="t-bright">[ ${skill.val}% ]</span> <span class="t-muted">${skill.name}</span>`);
+    });
+    lines.push('<span class="t-muted">All modules online.</span>');
+    return lines;
+  },
 
   status: () => {
     const years = ((new Date() - new Date('2023-11-20')) / (1000 * 60 * 60 * 24 * 365.25)).toFixed(2);
@@ -472,15 +480,31 @@ function handleStart() {
 
 // ── SKILL BAR SCROLL ANIMATION ──
 // Bars animate in once the about section enters the viewport
-const skillBars = document.querySelectorAll('.skill-bar-fill');
-const skillPctEls = [
-  document.getElementById('s1pct'),
-  document.getElementById('s2pct'),
-  document.getElementById('s3pct'),
-  document.getElementById('s4pct'),
-  document.getElementById('s5pct'),
-  document.getElementById('s6pct'),
-];
+let skillBars = [];
+let skillPctEls = [];
+
+function initSkillsHTML() {
+  const panel = document.querySelector('.skills-panel');
+  if (!panel) return;
+  
+  MY_SKILLS.forEach(skill => {
+    const row = document.createElement('div');
+    row.className = 'skill-row';
+    row.innerHTML = `
+      <div class="skill-header"><span>${skill.name.toUpperCase()}</span><span class="skill-pct-label">0%</span></div>
+      <div class="skill-bar-bg">
+        <div class="skill-bar-fill" data-val="${skill.val}"></div>
+      </div>
+    `;
+    panel.appendChild(row);
+  });
+  
+  skillBars = document.querySelectorAll('.skill-bar-fill');
+  skillPctEls = document.querySelectorAll('.skill-pct-label');
+}
+
+// Initialize the DOM elements before the observer runs
+initSkillsHTML();
 
 function animateBars() {
   skillBars.forEach((bar, i) => {
