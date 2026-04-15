@@ -33,6 +33,9 @@ body {
   font-family: var(--font);
   overflow-x: hidden;
 }
+a{
+  all:unset;
+}
 
 /* Global scanline texture */
 body::before {
