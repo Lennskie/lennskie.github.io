@@ -397,6 +397,7 @@ async function runLootReveal(el, opts = {}) {
   el.style.width = lockedWidth;
   el.style.height = lockedHeight;
   el.style.boxSizing = 'border-box';
+  el.style.opacity = '1'; // Ensure the host is visible for the overlay phases
 
   const overlay = document.createElement('div');
   overlay.className = 'loot-overlay';
@@ -406,14 +407,26 @@ async function runLootReveal(el, opts = {}) {
   await new Promise(r => setTimeout(r, 500));
 
   // 2. Eye Scan Phase
-  overlay.classList.add('loot-overlay-grid');
   overlay.style.background = '#2a2a2a';
   overlay.style.color = '#eee';
   overlay.style.fontSize = '18px';
 
+  // Apply layout based on eyeLayout parameter
+  if (eyeLayout === 'grid') {
+    overlay.classList.add('loot-overlay-grid');
+  } else {
+    overlay.style.display = 'flex';
+    overlay.style.justifyContent = 'center';
+    overlay.style.alignItems = 'center';
+    overlay.style.gap = '80px';
+    overlay.style.padding = '0';
+  }
+
+  const eyeW = eyeLayout === 'grid' ? 50 : 50;
+  const eyeH = eyeLayout === 'grid' ? 30 : 30;
   const eyeSvg = `
     <div class="loot-item">
-      <svg width="50" height="30" viewBox="0 0 100 60" style="width: 50px; height: 30px;">
+      <svg width="${eyeW}" height="${eyeH}" viewBox="0 0 100 60" style="width: ${eyeW}px; height: ${eyeH}px;">
         <path d="M10 30 L30 10 L70 10 L90 30 L70 50 L30 50 Z" fill="none" stroke="#666" stroke-width="3"/>
         <circle cx="50" cy="30" r="10" fill="#666" class="eye-pupil"/>
       </svg>
@@ -435,6 +448,18 @@ async function runLootReveal(el, opts = {}) {
   // 3. Crosshair Phase: Lavender grey
   overlay.style.background = '#989cab';
   overlay.style.color = '#1a1a1a';
+
+  // Apply layout based on crosshairLayout parameter
+  if (crosshairLayout === 'grid') {
+    overlay.classList.add('loot-overlay-grid');
+  } else {
+    overlay.style.display = 'flex';
+    overlay.style.justifyContent = 'center';
+    overlay.style.alignItems = 'center';
+    overlay.style.gap = '80px';
+    overlay.style.padding = '0';
+  }
+
   const chSize = 50;
   const crosshair = `
     <div class="loot-item">
