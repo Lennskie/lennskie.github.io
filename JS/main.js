@@ -369,16 +369,16 @@ async function runHeroIntro() {
 async function runLootReveal(el, opts = {}) {
   const {
     eyeCount = 2,
-    eyeLayout = 'row',       // 'row' | 'grid'
+    eyeLayout = 'row',       
     crosshairCount = 2,
-    crosshairLayout = 'row', // 'row' | 'grid'
+    crosshairLayout = 'row', 
     gridRows = 4,
     gridCols = 13,
     finalHTML = '',
     finalBackground = 'var(--neon)',
     finalColor = 'var(--void)',
     finalClasses = [],
-    lockedClassToRemove = '', // pass a class to remove right before resolving
+    lockedClassToRemove = '', 
     onComplete = null,
   } = opts;
 
