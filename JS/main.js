@@ -374,8 +374,13 @@ async function runLootReveal(el, opts = {}) {
     onComplete = null,
   } = opts;
 
-  // Save original content to restore if needed
+  // Save original style state so we can restore it later
   const originalStyles = el.getAttribute('style') || '';
+
+  // Ensure the host can contain an absolute overlay layer
+  if (getComputedStyle(el).position === 'static') {
+    el.style.position = 'relative';
+  }
 
   // Lock dimensions so the element never resizes during animation
   const rect = el.getBoundingClientRect();
@@ -385,37 +390,30 @@ async function runLootReveal(el, opts = {}) {
   el.style.height = lockedHeight;
   el.style.boxSizing = 'border-box';
 
-  // 1. Initial State: Dark grey with a dash
-  el.textContent = "-";
-  el.style.opacity = "1";
-  el.style.background = "#2a2a2a";
-  el.style.color = "#eee";
-  el.style.fontSize = "18px";
+  const overlay = document.createElement('div');
+  overlay.className = 'loot-overlay';
+  overlay.innerHTML = '-';
+  el.appendChild(overlay);
 
   await new Promise(r => setTimeout(r, 500));
 
   // 2. Eye Scan Phase
-  el.style.display = "flex";
-  el.style.justifyContent = "center";
-  el.style.alignItems = "center";
-  el.style.flexWrap = eyeLayout === 'grid' ? 'wrap' : 'nowrap';
-  el.style.gap = eyeLayout === 'grid' ? '10px 40px' : '80px';
-
-  // Size eyes relative to container
-  const eyeW = eyeLayout === 'grid' ? 40 : 50;
-  const eyeH = eyeLayout === 'grid' ? 24 : 30;
+  overlay.classList.add('loot-overlay-grid');
+  overlay.style.background = '#2a2a2a';
+  overlay.style.color = '#eee';
+  overlay.style.fontSize = '18px';
 
   const eyeSvg = `
-    <svg width="${eyeW}" height="${eyeH}" viewBox="0 0 100 60" style="width: ${eyeW}px; height: ${eyeH}px;">
-      <path d="M10 30 L30 10 L70 10 L90 30 L70 50 L30 50 Z" 
-            fill="none" stroke="#666" stroke-width="3"/>
-      <circle cx="50" cy="30" r="10" fill="#666" class="eye-pupil"/>
-    </svg>
+    <div class="loot-item">
+      <svg width="50" height="30" viewBox="0 0 100 60" style="width: 50px; height: 30px;">
+        <path d="M10 30 L30 10 L70 10 L90 30 L70 50 L30 50 Z" fill="none" stroke="#666" stroke-width="3"/>
+        <circle cx="50" cy="30" r="10" fill="#666" class="eye-pupil"/>
+      </svg>
+    </div>
   `;
-  el.innerHTML = Array(eyeCount).fill(eyeSvg).join('');
+  overlay.innerHTML = Array(eyeCount).fill(eyeSvg).join('');
 
-  // Animate pupils left-to-right
-  const pupils = el.querySelectorAll('.eye-pupil');
+  const pupils = overlay.querySelectorAll('.eye-pupil');
   pupils.forEach(p => {
     p.style.transition = 'cx 0.15s ease-in-out';
   });
@@ -427,27 +425,29 @@ async function runLootReveal(el, opts = {}) {
   await new Promise(r => setTimeout(r, 300));
 
   // 3. Crosshair Phase: Lavender grey
-  el.style.background = "#989cab";
-  el.style.color = "#1a1a1a";
-  el.style.flexWrap = crosshairLayout === 'grid' ? 'wrap' : 'nowrap';
-  el.style.gap = crosshairLayout === 'grid' ? '4px 30px' : '80px';
-
-  const chSize = crosshairLayout === 'grid' ? 35 : 60;
+  overlay.style.background = '#989cab';
+  overlay.style.color = '#1a1a1a';
+  const chSize = 50;
   const crosshair = `
-    <svg width="${chSize}" height="${chSize}" viewBox="0 0 100 100" style="width: ${chSize}px; height: ${chSize}px;">
-      <line x1="0" y1="50" x2="100" y2="50" stroke="currentColor" stroke-width="3" />
-      <line x1="50" y1="0" x2="50" y2="100" stroke="currentColor" stroke-width="3" />
-    </svg>
+    <div class="loot-item">
+      <svg width="${chSize}" height="${chSize}" viewBox="0 0 100 100" style="width: ${chSize}px; height: ${chSize}px;">
+        <line x1="0" y1="50" x2="100" y2="50" stroke="currentColor" stroke-width="3" />
+        <line x1="50" y1="0" x2="50" y2="100" stroke="currentColor" stroke-width="3" />
+      </svg>
+    </div>
   `;
-  el.innerHTML = Array(crosshairCount).fill(crosshair).join('');
+  overlay.innerHTML = Array(crosshairCount).fill(crosshair).join('');
 
   await new Promise(r => setTimeout(r, 200));
 
+  // Remove the reveal overlay and restore the host before the final dissolve
+  overlay.remove();
+
   // 4. Grid-Dissolve Phase
-  // Reset flex layouts so original content acts normal
   el.setAttribute('style', originalStyles);
-  
-  // Re-apply dimension locks and force opacity to 1 (prevents hero button disappearing)
+  if (getComputedStyle(el).position === 'static') {
+    el.style.position = 'relative';
+  }
   el.style.width = lockedWidth;
   el.style.height = lockedHeight;
   el.style.boxSizing = 'border-box';
@@ -459,26 +459,24 @@ async function runLootReveal(el, opts = {}) {
   if (finalColor) {
     el.style.color = finalColor;
   }
-  
+
   if (lockedClassToRemove) {
     el.classList.remove(lockedClassToRemove);
   }
-  
+
   el.innerHTML = finalHTML;
   finalClasses.forEach(cls => el.classList.add(cls));
 
-  const overlay = document.createElement('div');
-  overlay.className = 'button-fill-grid';
-  overlay.style.gridTemplateColumns = `repeat(${gridCols}, 1fr)`;
-  overlay.style.gridTemplateRows = `repeat(${gridRows}, 1fr)`;
+  const gridOverlay = document.createElement('div');
+  gridOverlay.className = 'button-fill-grid';
+  gridOverlay.style.gridTemplateColumns = `repeat(${gridCols}, 1fr)`;
+  gridOverlay.style.gridTemplateRows = `repeat(${gridRows}, 1fr)`;
 
   const revealTargets = [];
-
   for (let r = 0; r < gridRows; r++) {
     for (let c = 0; c < gridCols; c++) {
       const s = document.createElement('div');
-      overlay.appendChild(s);
-
+      gridOverlay.appendChild(s);
       if ((r + c) % 2 !== 0) {
         s.style.opacity = '0';
       } else {
@@ -487,12 +485,11 @@ async function runLootReveal(el, opts = {}) {
       }
     }
   }
-  el.appendChild(overlay);
 
+  el.appendChild(gridOverlay);
   await new Promise(r => setTimeout(r, 300));
 
   revealTargets.sort(() => Math.random() - 0.5);
-
   for (let i = 0; i < revealTargets.length; i++) {
     revealTargets[i].style.opacity = '0';
     const remaining = revealTargets.length - 1 - i;
@@ -501,11 +498,9 @@ async function runLootReveal(el, opts = {}) {
   }
 
   await new Promise(r => setTimeout(r, 150));
-  overlay.remove();
+  gridOverlay.remove();
 
-  // Final activation
   finalClasses.forEach(cls => el.classList.add(cls));
-
   if (onComplete) onComplete(el);
 }
 
