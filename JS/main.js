@@ -39,11 +39,17 @@ const COMMANDS = {
     '  <span class="t-bright">clear</span>     — flush terminal buffer',
   ],
 
-  whoami: () => [
-    '<span class="t-muted">I am Lenn, Cyber Security graduate and IT Support.</span>',
+  whoami: () => {
+
+    const years = Math.floor((new Date() - new Date('2002-09-29')) / (1000 * 60 * 60 * 24 * 365.25)); 
+
+    return [
+    `<span class="t-muted">I am Lenn, I am ${years} years old and a Cyber Security graduate</span>`,
     '<span class="t-muted">My methodology prioritizes tenant security, identity governance, and automation.</span>',
     '<span class="t-bright">To see my skills, type: </span>skills',
-  ],
+    ];
+  },
+
 
   skills: () => {
     const lines = ['<span class="t-muted">Loading skill modules...</span>'];
@@ -55,7 +61,9 @@ const COMMANDS = {
   },
 
   status: () => {
-    const years = ((new Date() - new Date('2023-11-20')) / (1000 * 60 * 60 * 24 * 365.25)).toFixed(2);
+    
+    const years = Math.floor((new Date() - new Date('2023-11-20')) / (1000 * 60 * 60 * 24 * 365.25));
+
     return [
       '<span class="t-muted">Currently employed at Pemco International.</span>',
       `<span class="t-muted">${years} years active.</span>`,
