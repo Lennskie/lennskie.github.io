@@ -27,7 +27,7 @@
 
   .hero-btn {
     padding: 0.85rem 2.5rem;
-    font-size: 13px;
+    font-size: 9px;
     letter-spacing: 0.28em;
   }
 
@@ -130,10 +130,10 @@
   .hero-btn {
     margin-top: 1.5rem;
     padding: 0;
-    font-size: 11px;
+    font-size: 8px;
     letter-spacing: 0.2em;
-    width: 210px;
-    height: 64px;
+    width: 140px;
+    height: 43px;
     max-width: 90vw;
   }
 
@@ -263,4 +263,24 @@
 
   /* Remove hover-only effects that never fire on touch */
   .hero-btn:hover { box-shadow: none; }
+}
+
+
+/* ════════════════════════════════════════
+   RESPONSIVE
+════════════════════════════════════════ */
+@media (max-width: 760px) {
+  .about-grid    { grid-template-columns: 1fr; gap: 3rem; }
+  .hobbies-grid  { grid-template-columns: 1fr; }
+  .about-meta    { gap: 1.5 rem; }
+}
+
+/* Mobile Button Scaling */
+@media screen and (max-width: 768px) {
+  .hero-btn {
+    padding: 0.8rem 1rem;
+    min-width: 140px;
+    min-height: 44px;
+    font-size: 14px;
+  }
 }
