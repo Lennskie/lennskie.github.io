@@ -356,7 +356,7 @@ async function runHeroIntro() {
     crosshairCount: 2,
     crosshairLayout: 'row',
     gridRows: 4,
-    gridCols: 13,
+    gridCols: 12,
     finalHTML: 'ENTER',
     finalBackground: 'var(--neon)',
     finalColor: 'var(--void)',
@@ -373,7 +373,7 @@ async function runLootReveal(el, opts = {}) {
     crosshairCount = 2,
     crosshairLayout = 'row', 
     gridRows = 4,
-    gridCols = 13,
+    gridCols = 7,
     finalHTML = '',
     finalBackground = 'var(--neon)',
     finalColor = 'var(--void)',
@@ -399,6 +399,10 @@ async function runLootReveal(el, opts = {}) {
   el.style.boxSizing = 'border-box';
   el.style.opacity = '1'; // Ensure the host is visible for the overlay phases
 
+  // Calculate scale factor based on original button size (260px wide) vs current size
+  const originalButtonWidth = 260;
+  const scaleFactor = rect.width / originalButtonWidth;
+
   const overlay = document.createElement('div');
   overlay.className = 'loot-overlay';
   overlay.innerHTML = '-';
@@ -409,7 +413,7 @@ async function runLootReveal(el, opts = {}) {
   // 2. Eye Scan Phase
   overlay.style.background = '#2a2a2a';
   overlay.style.color = '#eee';
-  overlay.style.fontSize = '18px';
+  overlay.style.fontSize = (18 * scaleFactor) + 'px';
 
   // Apply layout based on eyeLayout parameter
   if (eyeLayout === 'grid') {
@@ -418,12 +422,12 @@ async function runLootReveal(el, opts = {}) {
     overlay.style.display = 'flex';
     overlay.style.justifyContent = 'center';
     overlay.style.alignItems = 'center';
-    overlay.style.gap = '80px';
+    overlay.style.gap = (80 * scaleFactor) + 'px';
     overlay.style.padding = '0';
   }
 
-  const eyeW = eyeLayout === 'grid' ? 50 : 50;
-  const eyeH = eyeLayout === 'grid' ? 30 : 30;
+  const eyeW = (eyeLayout === 'grid' ? 50 : 50) * scaleFactor;
+  const eyeH = (eyeLayout === 'grid' ? 30 : 30) * scaleFactor;
   const eyeSvg = `
     <div class="loot-item">
       <svg width="${eyeW}" height="${eyeH}" viewBox="0 0 100 60" style="width: ${eyeW}px; height: ${eyeH}px;">
@@ -456,11 +460,11 @@ async function runLootReveal(el, opts = {}) {
     overlay.style.display = 'flex';
     overlay.style.justifyContent = 'center';
     overlay.style.alignItems = 'center';
-    overlay.style.gap = '80px';
+    overlay.style.gap = (80 * scaleFactor) + 'px';
     overlay.style.padding = '0';
   }
 
-  const chSize = 50;
+  const chSize = 50 * scaleFactor;
   const crosshair = `
     <div class="loot-item">
       <svg width="${chSize}" height="${chSize}" viewBox="0 0 100 100" style="width: ${chSize}px; height: ${chSize}px;">

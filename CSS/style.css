@@ -104,13 +104,13 @@ body::before {
 .hero-btn {
   margin-top: 2.5rem;
   padding: 0;
-  width: 260px;
-  height: 80px;
+  width: 259px;
+  height: 79px;
   background: #2a2a2a;
   border: 1px solid #444;
   color: #eee;
   font-family: var(--mono);
-  font-size: 18px;
+  font-size: 11px;
   font-weight: 700;
   letter-spacing: 0.35em;
   text-transform: uppercase;
@@ -197,6 +197,7 @@ body::before {
 
 .hobby-card {
   position: relative;
+  margin: 1%;
 }
 
 .hero-meta {
@@ -631,23 +632,4 @@ body::before {
 @keyframes crtFlicker {
   0%, 100% { opacity: 1; }
   50%       { opacity: 0.75; }
-}
-
-
-/* ════════════════════════════════════════
-   RESPONSIVE
-════════════════════════════════════════ */
-@media (max-width: 760px) {
-  .about-grid    { grid-template-columns: 1fr; gap: 3rem; }
-  .hobbies-grid  { grid-template-columns: 1fr; }
-  .about-meta    { gap: 1.5rem; }
-}
-/* Mobile Button Scaling */
-@media screen and (max-width: 768px) {
-  .hero-btn {
-    padding: 0.8rem 2.8rem;
-    min-width: 140px;
-    min-height: 44px;
-    font-size: 14px;
-  }
 }
