@@ -11,12 +11,12 @@ let isTyping = false;
 
 // Unified Skills Configuration
 const MY_SKILLS = [
-  { name: '(Azure) Active Directory & Windows Servers', val: 85 },
+  { name: '(Azure) Active Directory &amp; Windows Servers', val: 85 },
   { name: 'Office 365', val: 90 },
   { name: 'Networks', val: 80 },
   { name: 'Documentation', val: 90 },
-  { name: 'Azure & Intune', val: 80 },
-  { name: 'PowerShell & General scripting', val: 85 },
+  { name: 'Azure &amp; Intune', val: 80 },
+  { name: 'PowerShell &amp; General scripting', val: 85 },
 ];
 
 // Typing speed configuration (ms per character)
@@ -342,122 +342,171 @@ async function runHeroIntro() {
   await new Promise(r => setTimeout(r, 500));
 
   // 3. Automated loot revelation immediately after the intro
-  await animateLootButton(btn);
+  await runLootReveal(btn, {
+    eyeCount: 2,
+    eyeLayout: 'row',
+    crosshairCount: 2,
+    crosshairLayout: 'row',
+    gridRows: 4,
+    gridCols: 13,
+    finalHTML: 'ENTER',
+    finalBackground: 'var(--neon)',
+    finalColor: 'var(--void)',
+    finalClasses: ['btn-looted', 'is-active'],
+  });
 }
 
-// Logic for the square "loot box" button reveal
-async function animateLootButton(btn) {
-  // 1. Initial State: Dark grey with a dash (-) [0.5s]
-  btn.textContent = "-";
-  btn.style.opacity = "1";
-  btn.style.background = "#2a2a2a";
-  btn.style.color = "#eee";
-  btn.style.fontSize = "18px";
+// ── MODULAR LOOT REVEAL ANIMATION ──
+// Reusable reveal sequence: dash → eyes → crosshairs → grid dissolve → final content
+async function runLootReveal(el, opts = {}) {
+  const {
+    eyeCount = 2,
+    eyeLayout = 'row',       // 'row' | 'grid'
+    crosshairCount = 2,
+    crosshairLayout = 'row', // 'row' | 'grid'
+    gridRows = 4,
+    gridCols = 13,
+    finalHTML = '',
+    finalBackground = 'var(--neon)',
+    finalColor = 'var(--void)',
+    finalClasses = [],
+    lockedClassToRemove = '', // pass a class to remove right before resolving
+    onComplete = null,
+  } = opts;
+
+  // Save original content to restore if needed
+  const originalStyles = el.getAttribute('style') || '';
+
+  // Lock dimensions so the element never resizes during animation
+  const rect = el.getBoundingClientRect();
+  const lockedWidth = rect.width + 'px';
+  const lockedHeight = rect.height + 'px';
+  el.style.width = lockedWidth;
+  el.style.height = lockedHeight;
+  el.style.boxSizing = 'border-box';
+
+  // 1. Initial State: Dark grey with a dash
+  el.textContent = "-";
+  el.style.opacity = "1";
+  el.style.background = "#2a2a2a";
+  el.style.color = "#eee";
+  el.style.fontSize = "18px";
 
   await new Promise(r => setTimeout(r, 500));
 
-  // 2. Eye Scan Phase: Scanning eyes sweep left-to-right in each slot
-  btn.style.display = "flex";
-  btn.style.justifyContent = "center";
-  btn.style.alignItems = "center";
-  btn.style.gap = "80px";
+  // 2. Eye Scan Phase
+  el.style.display = "flex";
+  el.style.justifyContent = "center";
+  el.style.alignItems = "center";
+  el.style.flexWrap = eyeLayout === 'grid' ? 'wrap' : 'nowrap';
+  el.style.gap = eyeLayout === 'grid' ? '10px 40px' : '80px';
+
+  // Size eyes relative to container
+  const eyeW = eyeLayout === 'grid' ? 40 : 50;
+  const eyeH = eyeLayout === 'grid' ? 24 : 30;
 
   const eyeSvg = `
-    <svg width="50" height="30" viewBox="0 0 100 60" style="width: 50px; height: 30px;">
+    <svg width="${eyeW}" height="${eyeH}" viewBox="0 0 100 60" style="width: ${eyeW}px; height: ${eyeH}px;">
       <path d="M10 30 L30 10 L70 10 L90 30 L70 50 L30 50 Z" 
             fill="none" stroke="#666" stroke-width="3"/>
       <circle cx="50" cy="30" r="10" fill="#666" class="eye-pupil"/>
     </svg>
   `;
-  btn.innerHTML = `${eyeSvg}${eyeSvg}`;
+  el.innerHTML = Array(eyeCount).fill(eyeSvg).join('');
 
   // Animate pupils left-to-right
-  const pupils = btn.querySelectorAll('.eye-pupil');
+  const pupils = el.querySelectorAll('.eye-pupil');
   pupils.forEach(p => {
     p.style.transition = 'cx 0.15s ease-in-out';
   });
 
   await new Promise(r => setTimeout(r, 50));
-  // Look left
   pupils.forEach(p => p.setAttribute('cx', '35'));
   await new Promise(r => setTimeout(r, 300));
-
-  // Look right
   pupils.forEach(p => p.setAttribute('cx', '65'));
   await new Promise(r => setTimeout(r, 300));
 
-  // 3. Dual-Slot Primed: Lavender grey with SVG crosshairs [0.2s]
-  btn.style.background = "#989cab";
-  btn.style.color = "#1a1a1a";
-  btn.style.display = "flex";
-  btn.style.justifyContent = "center";
-  btn.style.alignItems = "center";
-  btn.style.gap = "80px";
+  // 3. Crosshair Phase: Lavender grey
+  el.style.background = "#989cab";
+  el.style.color = "#1a1a1a";
+  el.style.flexWrap = crosshairLayout === 'grid' ? 'wrap' : 'nowrap';
+  el.style.gap = crosshairLayout === 'grid' ? '4px 30px' : '80px';
 
+  const chSize = crosshairLayout === 'grid' ? 35 : 60;
   const crosshair = `
-    <svg width="60" height="60" viewBox="0 0 100 100" style="width: 60px; height: 60px;">
+    <svg width="${chSize}" height="${chSize}" viewBox="0 0 100 100" style="width: ${chSize}px; height: ${chSize}px;">
       <line x1="0" y1="50" x2="100" y2="50" stroke="currentColor" stroke-width="3" />
       <line x1="50" y1="0" x2="50" y2="100" stroke="currentColor" stroke-width="3" />
     </svg>
   `;
-  btn.innerHTML = `${crosshair}${crosshair}`;
+  el.innerHTML = Array(crosshairCount).fill(crosshair).join('');
 
   await new Promise(r => setTimeout(r, 200));
 
-  // 3. Grid-Dissolve Phase: Cover the target state and reveal it randomly
-  // Prep the target look beneath the grid
-  btn.style.background = "var(--neon)";
-  btn.style.color = "var(--void)";
-  btn.style.fontSize = "18px";
-  btn.style.fontWeight = "700";
-  btn.style.fontFamily = "var(--mono)";
-  btn.style.gap = "0";
-  btn.innerHTML = "ENTER";
+  // 4. Grid-Dissolve Phase
+  // Reset flex layouts so original content acts normal
+  el.setAttribute('style', originalStyles);
+  
+  // Re-apply dimension locks and force opacity to 1 (prevents hero button disappearing)
+  el.style.width = lockedWidth;
+  el.style.height = lockedHeight;
+  el.style.boxSizing = 'border-box';
+  el.style.opacity = '1';
+
+  if (finalBackground !== 'transparent') {
+    el.style.background = finalBackground;
+  }
+  if (finalColor) {
+    el.style.color = finalColor;
+  }
+  
+  if (lockedClassToRemove) {
+    el.classList.remove(lockedClassToRemove);
+  }
+  
+  el.innerHTML = finalHTML;
+  finalClasses.forEach(cls => el.classList.add(cls));
 
   const overlay = document.createElement('div');
   overlay.className = 'button-fill-grid';
+  overlay.style.gridTemplateColumns = `repeat(${gridCols}, 1fr)`;
+  overlay.style.gridTemplateRows = `repeat(${gridRows}, 1fr)`;
 
   const revealTargets = [];
-  const rows = 4;
-  const cols = 13;
 
-  for (let r = 0; r < rows; r++) {
-    for (let c = 0; c < cols; c++) {
+  for (let r = 0; r < gridRows; r++) {
+    for (let c = 0; c < gridCols; c++) {
       const s = document.createElement('div');
       overlay.appendChild(s);
 
-      // Start with a checkerboard pattern
       if ((r + c) % 2 !== 0) {
-        s.style.opacity = '0'; // Already revealed
+        s.style.opacity = '0';
       } else {
-        s.style.opacity = '1'; // Covering the content
+        s.style.opacity = '1';
         revealTargets.push(s);
       }
     }
   }
-  btn.appendChild(overlay);
+  el.appendChild(overlay);
 
-  // Pause on the checkerboard pattern before resolving
   await new Promise(r => setTimeout(r, 300));
 
-  // Randomly dissolve the remaining opaque squares
   revealTargets.sort(() => Math.random() - 0.5);
 
   for (let i = 0; i < revealTargets.length; i++) {
     revealTargets[i].style.opacity = '0';
-
-    // Smooth acceleration: last 5 squares dissolve almost instantly
     const remaining = revealTargets.length - 1 - i;
-    const delay = remaining < 5 ? 5 : 30; // ~650ms total sequence
+    const delay = remaining < 5 ? 5 : 30;
     await new Promise(r => setTimeout(r, delay));
   }
 
   await new Promise(r => setTimeout(r, 150));
-  overlay.remove(); // Cleanup
+  overlay.remove();
 
   // Final activation
-  btn.classList.add('btn-looted');
-  btn.classList.add('is-active');
+  finalClasses.forEach(cls => el.classList.add(cls));
+
+  if (onComplete) onComplete(el);
 }
 
 window.addEventListener('DOMContentLoaded', runHeroIntro);
@@ -532,3 +581,53 @@ const skillObserver = new IntersectionObserver(entries => {
 }, { threshold: 0.25 });
 
 skillObserver.observe(document.getElementById('about-section'));
+
+// ── HOBBY CARD LOOT REVEAL ──
+// Cards start as a "-" dash and reveal their content on hover
+function initHobbyCards() {
+  const cards = document.querySelectorAll('.hobby-card');
+
+  cards.forEach(card => {
+    // Store the real content
+    const originalContent = card.innerHTML;
+
+    // Replace with dash placeholder
+    card.classList.add('hobby-locked');
+
+    let isRevealing = false;
+    let hasRevealed = false;
+
+    card.addEventListener('mouseenter', async () => {
+      if (isRevealing || hasRevealed) return;
+      isRevealing = true;
+
+      //remove the dash ASAP
+      card.classList.add('hobby-unlocked');
+
+      await runLootReveal(card, {
+        eyeCount: 4,
+        eyeLayout: 'grid',
+        crosshairCount: 4,
+        crosshairLayout: 'grid',
+        gridRows: 4,
+        gridCols: 8,
+        finalHTML: originalContent,
+        finalBackground: 'var(--s1)',
+        finalColor: 'var(--text)',
+        finalClasses: ['hobby-revealed'],
+        lockedClassToRemove: 'hobby-locked',
+      });
+
+      // Clean up inline styles from the reveal animation
+      card.removeAttribute('style');
+      card.innerHTML = originalContent;
+      card.classList.remove('hobby-locked');
+      card.classList.add('hobby-revealed');
+
+      isRevealing = false;
+      hasRevealed = true;
+    });
+  });
+}
+
+initHobbyCards();
