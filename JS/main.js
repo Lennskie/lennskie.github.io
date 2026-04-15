@@ -611,7 +611,7 @@ const skillObserver = new IntersectionObserver(entries => {
 skillObserver.observe(document.getElementById('about-section'));
 
 // ── HOBBY CARD LOOT REVEAL ──
-// Cards start as a "-" dash and reveal their content on hover
+// Cards start as a "-" dash and reveal their content on hover (desktop) or scroll (mobile)
 function initHobbyCards() {
   const cards = document.querySelectorAll('.hobby-card');
 
@@ -625,7 +625,8 @@ function initHobbyCards() {
     let isRevealing = false;
     let hasRevealed = false;
 
-    card.addEventListener('mouseenter', async () => {
+    // Reveal animation function (reusable)
+    async function revealCard() {
       if (isRevealing || hasRevealed) return;
       isRevealing = true;
 
@@ -654,7 +655,20 @@ function initHobbyCards() {
 
       isRevealing = false;
       hasRevealed = true;
-    });
+    }
+
+    // Desktop: trigger on hover
+    card.addEventListener('mouseenter', revealCard);
+
+    // Mobile: trigger on scroll (using Intersection Observer)
+    const cardObserver = new IntersectionObserver(entries => {
+      if (entries[0].isIntersecting && !hasRevealed) {
+        revealCard();
+        cardObserver.disconnect();
+      }
+    }, { threshold: 0.25 });
+
+    cardObserver.observe(card);
   });
 }
 
