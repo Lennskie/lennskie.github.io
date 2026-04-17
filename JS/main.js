@@ -73,9 +73,8 @@ const COMMANDS = {
 
   contact: () => [
     '<span class="t-muted">Uplink parameters:</span>',
-    '  <span class="t-bright">LINKEDIN</span>  linkedin.com/in/lenn-crochart',
-    '  <span class="t-bright">GITHUB</span>    github.com/lennskie',
-    '  <span class="t-bright">EMAIL</span>     lenn.crochart+fromwebsite@gmail.com',
+    '  <span class="t-bright">LINKEDIN</span>  <a class="hover-link-console" href="https://linkedin.com/in/lenn-crochart" target="_blank">linkedin.com/in/lenn-crochart</a>',
+    '  <span class="t-bright">EMAIL</span> <a class="hover-link-console" href="mailto:lenn.crochart+fromwebsite@gmail.com">lenn.crochart+fromwebsite@gmail.com</a>',
   ],
 
   generator: () => {

@@ -272,6 +272,13 @@ body::before {
   margin-left: 6px;
 }
 
+.t-bypass {
+  font-family: var(--mono);
+  font-size: 11px;
+  color: var(--muted);
+  margin-left: 6px;
+}
+
 #terminal-output {
   padding: 1.5rem;
   font-family: var(--mono);
@@ -596,7 +603,18 @@ body::before {
   gap: 2.5rem;
 }
 
-.footer-link {
+.hover-link-console {
+  font-family: var(--mono);
+  font-size: 13;
+  color: var(--text);
+  text-decoration: none;
+  letter-spacing: 0.1em;
+  transition: color 0.15s;
+}
+
+.hover-link-console:hover { color: var(--neon); }
+
+.hover-link {
   font-family: var(--mono);
   font-size: 11px;
   color: var(--muted);
@@ -605,7 +623,7 @@ body::before {
   transition: color 0.15s;
 }
 
-.footer-link:hover { color: var(--neon); }
+.hover-link:hover { color: var(--neon); }
 
 
 /* ════════════════════════════════════════
