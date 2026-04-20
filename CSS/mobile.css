@@ -290,6 +290,7 @@
 @media (max-width: 760px) {
   .about-grid    { grid-template-columns: 1fr; gap: 3rem; }
   .hobbies-grid  { grid-template-columns: 1fr; }
+  .achievements-grid { grid-template-columns: 1fr;}
   .about-meta    { gap: 1.5 rem; }
 }
 
