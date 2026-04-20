@@ -47,7 +47,7 @@ const MY_ACHIEVEMENTS = [
   },
   {
     year: 2026,
-    title: 'CCNA FUNDAMENTALS',
+    title: 'CCNA INTRO TO NETWORKS',
     description: 'CCNA Introduction to Networks certificate achieved.',
     tags: ['CCNA', 'CISCO', 'NETWORKING', 'CERTIFICATION']
   }
@@ -66,6 +66,7 @@ const COMMANDS = {
     '<span class="t-muted">Available commands:</span>',
     '  <span class="t-bright">whoami</span>    — system entity identification',
     '  <span class="t-bright">skills</span>    — list loaded skill modules',
+    '  <span class="t-bright">achievements</span> — list my achievements',
     '  <span class="t-bright">status</span>    — current operational status',
     '  <span class="t-bright">contact</span>   — uplink parameters',
     '  <span class="t-bright">ls</span>        — list directory contents',
@@ -91,6 +92,14 @@ const COMMANDS = {
       lines.push(`  <span class="t-bright">[ ${skill.val}% ]</span> <span class="t-muted">${skill.name}</span>`);
     });
     lines.push('<span class="t-muted">All modules online.</span>');
+    return lines;
+  },
+
+  achievements: () => {
+    const lines = ['<span class="t-muted">Loading achievements...</span>'];
+    MY_ACHIEVEMENTS.forEach(achievement => {
+      lines.push(`  <span class="t-bright">[ YEAR ${achievement.year} ]</span> <span class="t-muted">${achievement.title}</span>`);
+    });
     return lines;
   },
 
