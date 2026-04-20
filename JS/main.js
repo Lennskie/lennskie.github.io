@@ -19,6 +19,40 @@ const MY_SKILLS = [
   { name: 'PowerShell &amp; General scripting', val: 85 },
 ];
 
+// Unified Achievements Configuration
+const MY_ACHIEVEMENTS = [
+  {
+    year: 2022,
+    title: 'TOP 50 BEGLIUM CYBER SECURITY CHALLENGE. ',
+    description: 'Belgium Cyber Security Challenge, where our team ranked in the top 50 out of 1500+.',
+    tags: ['CYBER SECURITY', 'COMPETITION']
+  },
+  {
+    year: 2022,
+    title: 'WINNER HACK THE FUTURE',
+    description: 'Laravel challenge by Codona',
+    tags: ['COMPETITION', 'LARAVEL']
+  },
+  {
+    year: 2022,
+    title: 'BEST AUDIT REPORT WESTTOER',
+    description: 'Westtoer best audit report with international group.',
+    tags: ['CYBER SECURITY', 'AUDIT']
+  },
+  {
+    year: 2023,
+    title: 'Kanban KMP I',
+    description: 'Kanban KMP I Certificate achieved at internship.',
+    tags: ['KANBAN', 'CERTIFICATION', 'PROJECT MANAGEMENT']
+  },
+  {
+    year: 2026,
+    title: 'CCNA FUNDAMENTALS',
+    description: 'CCNA Introduction to Networks certificate achieved.',
+    tags: ['CCNA', 'CISCO', 'NETWORKING', 'CERTIFICATION']
+  }
+];
+
 // Typing speed configuration (ms per character)
 const SPEEDS = {
   slow: 8,
@@ -614,7 +648,7 @@ const skillObserver = new IntersectionObserver(entries => {
 skillObserver.observe(document.getElementById('about-section'));
 
 // ── HOBBY CARD LOOT REVEAL ──
-// Cards start as a "-" dash and reveal their content on hover (desktop) or scroll (mobile)
+// Cards start as a "-" dash and reveal their content on scroll
 function initHobbyCards() {
   const cards = document.querySelectorAll('.hobby-card');
 
@@ -676,3 +710,85 @@ function initHobbyCards() {
 }
 
 initHobbyCards();
+
+// ── ACHIEVEMENT CARD LOOT REVEAL ──
+// Cards start as a "-" dash and reveal their content on scroll (no hover)
+function initAchievementCards() {
+  // Update the achievement count dynamically
+  const countSpan = document.querySelector('#achievements-section .section-count');
+  if (countSpan) {
+    countSpan.textContent = `[ ${MY_ACHIEVEMENTS.length} ACHIEVEMENTS ACHIEVED ]`;
+  }
+
+  const grid = document.querySelector('.achievements-grid');
+  if (!grid) return;
+
+  MY_ACHIEVEMENTS.forEach((achievement, index) => {
+    const card = document.createElement('div');
+    card.className = 'achievement-card achievement-locked';
+
+    const content = `
+      <div class="achievement-content">
+        <div class="achievement-index">[ ${achievement.year} ]</div>
+        <div class="achievement-title">${achievement.title}</div>
+        <p class="achievement-desc">${achievement.description}</p>
+        <div class="achievement-tags">
+          ${achievement.tags.map(tag => `<span class="achievement-tag">${tag}</span>`).join('')}
+        </div>
+      </div>
+    `;
+
+    card.innerHTML = content;
+    grid.appendChild(card);
+
+    // Store the real content
+    const originalContent = card.innerHTML;
+
+    let isRevealing = false;
+    let hasRevealed = false;
+
+    // Reveal animation function (reusable)
+    async function revealCard() {
+      if (isRevealing || hasRevealed) return;
+      isRevealing = true;
+
+      //remove the dash ASAP
+      card.classList.add('achievement-unlocked');
+
+      await runLootReveal(card, {
+        eyeCount: 4,
+        eyeLayout: 'grid',
+        crosshairCount: 4,
+        crosshairLayout: 'grid',
+        gridRows: 4,
+        gridCols: 8,
+        finalHTML: originalContent,
+        finalBackground: 'var(--s1)',
+        finalColor: 'var(--text)',
+        finalClasses: ['achievement-revealed'],
+        lockedClassToRemove: 'achievement-locked',
+      });
+
+      // Clean up inline styles from the reveal animation
+      card.removeAttribute('style');
+      card.innerHTML = originalContent;
+      card.classList.remove('achievement-locked');
+      card.classList.add('achievement-revealed');
+
+      isRevealing = false;
+      hasRevealed = true;
+    }
+
+    // Trigger on scroll (using Intersection Observer)
+    const cardObserver = new IntersectionObserver(entries => {
+      if (entries[0].isIntersecting && !hasRevealed) {
+        revealCard();
+        cardObserver.disconnect();
+      }
+    }, { threshold: 0.25 });
+
+    cardObserver.observe(card);
+  });
+}
+
+initAchievementCards();
