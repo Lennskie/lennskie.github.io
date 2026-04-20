@@ -110,7 +110,7 @@ body::before {
   border: 1px solid #444;
   color: #eee;
   font-family: var(--mono);
-  font-size: 11px;
+  font-size: 1.25rem;
   font-weight: 700;
   letter-spacing: 0.35em;
   text-transform: uppercase;
