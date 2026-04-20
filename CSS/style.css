@@ -582,6 +582,101 @@ body::before {
 
 
 /* ════════════════════════════════════════
+   ACHIEVEMENTS
+════════════════════════════════════════ */
+#achievements-section {
+  background: var(--void);
+  padding: 6rem 0;
+}
+
+.achievements-grid {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 0 2rem;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0;
+}
+
+.achievement-card {
+  margin: 1%;
+  background: var(--s1);
+  padding: 2.25rem 1.75rem;
+  position: relative;
+  overflow: hidden;
+  transition: background 0.15s;
+  border-right: 1px solid var(--s2);
+  min-height: 200px;
+}
+
+.achievement-locked .achievement-content {
+  visibility: hidden; /* keeps layout */
+}
+
+.achievement-locked:not(.achievement-unlocked)::after {
+  content: '-';
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  font-size: 2rem;
+  opacity: 0.6;
+  pointer-events: none;
+}
+
+.achievement-card:last-child {
+  border-right: none;
+}
+
+.achievement-card::before {
+  content: '';
+  position: absolute;
+  left: 0; top: 0; bottom: 0;
+  width: 4px;
+  background: transparent;
+  transition: background 0.15s;
+}
+
+.achievement-index {
+  font-family: var(--mono);
+  font-size: 10px;
+  color: var(--muted);
+  margin-bottom: 1rem;
+  letter-spacing: 0.1em;
+}
+
+.achievement-title {
+  font-size: 1rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--text);
+  margin-bottom: 0.75rem;
+}
+
+.achievement-desc {
+  font-size: 12px;
+  color: #777;
+  line-height: 1.75;
+}
+
+.achievement-tags {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+  margin-top: 1.25rem;
+}
+
+.achievement-tag {
+  font-family: var(--mono);
+  font-size: 10px;
+  color: var(--muted);
+  background: var(--s3);
+  padding: 3px 8px;
+  letter-spacing: 0.05em;
+}
+
+/* ════════════════════════════════════════
    CONTACT
 ════════════════════════════════════════ */
 #contact-section {
