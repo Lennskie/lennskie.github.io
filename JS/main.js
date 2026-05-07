@@ -23,7 +23,7 @@ const MY_SKILLS = [
 const MY_ACHIEVEMENTS = [
   {
     year: 2022,
-    title: 'TOP 50 BEGLIUM CYBER SECURITY CHALLENGE. ',
+    title: 'TOP 50 BELGIUM CYBER SECURITY CHALLENGE. ',
     description: 'Belgium Cyber Security Challenge, where our team ranked in the top 50 out of 1500+.',
     tags: ['CYBER SECURITY', 'COMPETITION']
   },
