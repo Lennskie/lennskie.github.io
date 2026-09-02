@@ -103,17 +103,23 @@ const COMMANDS = {
     return lines;
   },
 
-  status: () => {
-    
-    const years = Math.floor((new Date() - new Date('2023-11-20')) / (1000 * 60 * 60 * 24 * 365.25));
-
-    return [
-      '<span class="t-muted">Currently employed at Pemco International.</span>',
-      `<span class="t-muted">${years} years active.</span>`,
-      '<span class="t-bright">[ EMPLOYED ]</span>',
-    ];
-  },
-
+   status: () => {
+     const vacYears = Math.floor(
+       (new Date() - new Date('2026-08-01')) /
+       (1000 * 60 * 60 * 24 * 365.25)
+     );
+   
+     const pemcoYears = Math.round(
+       (new Date('2026-07-31') - new Date('2023-11-20')) /
+       (1000 * 60 * 60 * 24 * 365.25)
+     );
+   
+     return [
+       `<span class="t-muted">Working for V.A.C. Machines for ${vacYears} ${vacYears === 1 ? 'year' : 'years'}.</span>`,
+       `<span class="t-muted">Worked for ${pemcoYears} years at Pemco International.</span>`,
+       '<span class="t-bright">[ EMPLOYED ]</span>',
+     ];
+   },
   contact: () => [
     '<span class="t-muted">Uplink parameters:</span>',
     '  <span class="t-bright">LINKEDIN</span>  <a class="hover-link-console" href="https://linkedin.com/in/lenn-crochart" target="_blank">linkedin.com/in/lenn-crochart</a>',
