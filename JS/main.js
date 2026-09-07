@@ -115,7 +115,7 @@ const COMMANDS = {
      );
    
      return [
-       `<span class="t-muted">Working for V.A.C. Machines for ${vacYears} ${vacYears === 1 ? 'year' : 'years'}.</span>`,
+       `<span class="t-muted">Employed at V.A.C. Machines for ${vacYears} ${vacYears === 1 ? 'year' : 'years'}.</span>`,
        `<span class="t-muted">Worked for ${pemcoYears} years at Pemco International.</span>`,
        '<span class="t-bright">[ EMPLOYED ]</span>',
      ];
